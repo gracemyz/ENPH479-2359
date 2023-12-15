@@ -83,7 +83,9 @@ void test_spi() {
   // uint16_t led1B_50mA = 160U;
   // uint16_t led1B_100mA = 192U;
 
-  uint16_t firsthalf = ((ledRegAddress) << 1U) | ADPD400x_SPI_WRITE;
+  // first 16 bits: 15 bit register address and 1 bit write command
+  uint16_t firsthalf = ((ledRegAddress) << 1U) | ADPD400x_SPI_WRITE; 
+  // if all bits are 0, then 0 current?
   uint32_t led_off = ((firsthalf) << 16U) | (uint16_t) 0;
   uint32_t buffer;
   
@@ -91,7 +93,7 @@ void test_spi() {
   SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
   digitalWrite(BP_NSS, LOW); //enable device
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < sizeof(led_values); i++) {
     buffer = ((firsthalf) << 16U) | led_values[i];
     SPI.transfer(buffer, 32);
     delay(delay_ms);
