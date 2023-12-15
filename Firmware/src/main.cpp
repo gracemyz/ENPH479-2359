@@ -12,8 +12,8 @@
 #define BP_LED_BUILTIN PC13 // Bluepill built-in LED
 #define BP_DATA_OUT PA7 // Bluepill MOSI 1
 #define BP_DATA_IN PA6 // Bluepill MISO 1
-#define BP_SCK PA6 // Bluepill SCK 1
-#define BP_NSS PA5 // Bluepill Chip Select 1
+#define BP_SCK PA5 // Bluepill SCK 1
+#define BP_NSS PA4 // Bluepill Chip Select 1
 #define BLINK_DUR_ms 500
 
 /* ADPD4000 SPI settings */
@@ -34,11 +34,12 @@ void setup() {
   pinMode(BP_DATA_IN, INPUT);
   pinMode(BP_SCK, OUTPUT);
   pinMode(BP_NSS, OUTPUT);
+  SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV16);
 
-  digitalWrite(BP_NSS, HIGH); //disable ADPD4000 SPI
+  digitalWrite(BP_NSS, LOW); //disable ADPD4000 SPI
 
-  test_spi();
-  blink_bp(3);
+  
 
 }
 
@@ -48,6 +49,8 @@ void setup() {
  * @retval none
  */
 void loop() {
+  test_spi();
+  blink_bp(2);
 }
 
 /**
@@ -70,13 +73,15 @@ void blink_bp(int num_blinks) {
  * @retval none
  */
 void test_spi() {
+  // uint16_t green_reg = ADPD4x_REG_LED_POW12_A;
 
 
   uint16_t ledRegAddress = ADPD4x_REG_LED_POW12_A; // timing slot A, I think
 
   // hardcoded lol. see adi_adpd_slotops_helper for a more flexible function 
   // in order: LED1A 50mA, LED1A 100mA, LED1B 50mA, LED1B 100mA
-  uint16_t led_values[4] = {32U, 64U, 160U, 192U};
+  // uint16_t led_values[4] = {32U, 64U, 160U, 192U};
+  uint16_t led_values[2] = {8U, 16U};
 
   // uint16_t led1A_50mA = 32U;
   // uint16_t led1A_100mA = 64U;
@@ -100,7 +105,7 @@ void test_spi() {
     SPI.transfer(&led_off, 4);
     delay(delay_ms);
   }
-  digitalWrite(BP_NSS, HIGH);
+  // digitalWrite(BP_NSS, HIGH);
   SPI.endTransaction();
 
 }
