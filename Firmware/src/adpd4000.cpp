@@ -18,10 +18,10 @@
  * Including this because sometimes uint16_t doesn't get recognized as a type
  * even though stdint.h is included... 
  */
-#ifndef __STDINT_H_
-    typedef int int16_t;
-    typedef unsigned int uint16_t;
-#endif
+// #ifndef __STDINT_H_
+//     typedef int int16_t;
+//     typedef unsigned int uint16_t;
+// #endif
 
 /* ADPD4000 SPI settings */
 #define maxspeed 24000000 // ADPD4000 sclk frequency
@@ -58,5 +58,5 @@ uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSiz
 }
 
 uint16_t Adpd400x_SPI_Transmit(uint8_t *pTxData, uint16_t TxSize) {
-
+    
 }
