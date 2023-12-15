@@ -95,9 +95,9 @@ void test_spi() {
 
   for (int i = 0; i < sizeof(led_values); i++) {
     buffer = ((firsthalf) << 16U) | led_values[i];
-    SPI.transfer(buffer, 32);
+    SPI.transfer(&buffer, 4);
     delay(delay_ms);
-    SPI.transfer(led_off, 32);
+    SPI.transfer(&led_off, 4);
     delay(delay_ms);
   }
   digitalWrite(BP_NSS, HIGH);
