@@ -34,6 +34,11 @@ void setup() {
   pinMode(BP_DATA_IN, INPUT);
   pinMode(BP_SCK, OUTPUT);
   pinMode(BP_NSS, OUTPUT);
+
+  SPI.setMISO(BP_DATA_IN);
+  SPI.setMOSI(BP_DATA_OUT);
+  SPI.setSCLK(BP_SCK);
+  SPI.setSSEL(BP_NSS);
   SPI.begin();
   SPI.setClockDivider(SPI_CLOCK_DIV16);
 
