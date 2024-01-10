@@ -14,18 +14,37 @@
 #define BP_DATA_IN PA6 // Bluepill MISO 1
 #define BP_SCK PA5 // Bluepill SCK 1
 #define BP_NSS PA4 // Bluepill Chip Select 1
-#define BLINK_DUR_ms 500
+
+/* spi 2 */
+// #define BP_DATA_OUT PB15 // Bluepill MOSI 2
+// #define BP_DATA_IN PB14 // Bluepill MISO 2
+// #define BP_SCK PB13 // Bluepill SCK 2
+// #define BP_NSS PB12 // Bluepill Chip Select 2
+
+/* arduino */
+// #define BP_LED_BUILTIN PB5
+// #define BP_DATA_OUT PB3 // Bluepill MOSI 2
+// #define BP_DATA_IN PB4  // Bluepill MISO 2
+// #define BP_SCK PB5 // Bluepill SCK 2
+// #define BP_NSS PB2 // Bluepill Chip Select 2
+#define BLINK_DUR_ms 200
 
 /* ADPD4000 SPI settings */
-#define maxspeed 24000000 // ADPD4000 sclk frequency
+// #define maxspeed 24000000 // ADPD4000 sclk frequency
+#define maxspeed 200000
 #define dataorder MSBFIRST
 #define datamode SPI_MODE0 // Check this!!!!
 
+//  #include <iostream> 
+// using namespace std;
+
 void blink_bp(int num_blinks);
 void test_spi();
+void read_chip_id();
 
 void setup() {
   Serial.begin(9600);
+  delay(1000);
   pinMode(BP_LED_BUILTIN, OUTPUT);
   blink_bp(3);
 
@@ -40,9 +59,9 @@ void setup() {
   SPI.setSCLK(BP_SCK);
   SPI.setSSEL(BP_NSS);
   SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV16);
+  SPI.setClockDivider(SPI_CLOCK_DIV128);
 
-  digitalWrite(BP_NSS, LOW); //disable ADPD4000 SPI
+  digitalWrite(BP_NSS, HIGH); //disable ADPD4000 SPI
 
   
 
@@ -54,8 +73,21 @@ void setup() {
  * @retval none
  */
 void loop() {
-  test_spi();
+  
+  
+  SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
+  digitalWrite(BP_NSS, LOW);
+  delay(100);
+  uint16_t buffer = ((ADPD4x_REG_CHIP_ID) << 1U) & ADPD400x_SPI_READ; 
+  SPI.transfer16(buffer);
+  SPI.transfer16(0x00);
+  digitalWrite(BP_NSS, HIGH);
+  delay(100);
+  SPI.endTransaction();
   blink_bp(2);
+  
+  delay(1000);
+
 }
 
 /**
@@ -99,7 +131,8 @@ void test_spi() {
   uint32_t led_off = ((firsthalf) << 16U) | (uint16_t) 0;
   uint32_t buffer;
   
-  int delay_ms = 500;
+  int delay_ms = 200;
+  
   SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
   digitalWrite(BP_NSS, LOW); //enable device
 
@@ -110,10 +143,40 @@ void test_spi() {
     SPI.transfer(&led_off, 4);
     delay(delay_ms);
   }
-  // digitalWrite(BP_NSS, HIGH);
+  digitalWrite(BP_NSS, HIGH);
   SPI.endTransaction();
 
 }
+
+void read_chip_id() {
+
+
+  uint16_t RegAddress = ADPD4x_REG_CHIP_ID;
+
+  // 16 bits: 15 bit register address and 1 bit read command
+
+  uint16_t buffer = ((RegAddress) << 1U) & ADPD400x_SPI_READ; 
+  // Serial.println("buffer:");
+  // Serial.println(buffer);
+  // cout << "buffer:" << endl;
+  // cout << buffer <<endl;
+
+  SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
+  digitalWrite(BP_NSS, LOW); //enable device
+  
+  uint16_t response = SPI.transfer16(buffer);
+
+  digitalWrite(BP_NSS, HIGH);
+  SPI.endTransaction();
+  // Serial.println("response:");
+  // Serial.println(response);
+  // cout << "response:" << endl;
+  // cout << response <<endl;
+  delay(200);
+
+}
+
+
 
 
 

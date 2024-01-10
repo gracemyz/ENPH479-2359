@@ -58,5 +58,14 @@ uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSiz
 }
 
 uint16_t Adpd400x_SPI_Transmit(uint8_t *pTxData, uint16_t TxSize) {
+    SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
+    digitalWrite(BP_NSS, LOW); //enable device
+
+    // Write register address and READ command
+    uint16_t buffer = (pTxData[0] << 8) | (pTxData[1]);
+    SPI.transfer(&buffer, (int)TxSize);
+    
+    digitalWrite(BP_NSS, HIGH);
+    SPI.endTransaction();
     
 }
