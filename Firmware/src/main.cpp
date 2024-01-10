@@ -43,10 +43,6 @@ void test_spi();
 void read_chip_id();
 
 void setup() {
-  Serial.begin(9600);
-  delay(1000);
-  pinMode(BP_LED_BUILTIN, OUTPUT);
-  blink_bp(3);
 
   // Set bluepill SPI pins
   pinMode(BP_DATA_OUT, OUTPUT);
@@ -61,6 +57,8 @@ void setup() {
   SPI.begin();
   SPI.setClockDivider(SPI_CLOCK_DIV128);
 
+  pinMode(BP_LED_BUILTIN, OUTPUT);
+  blink_bp(3);
   digitalWrite(BP_NSS, HIGH); //disable ADPD4000 SPI
 
   
@@ -68,25 +66,16 @@ void setup() {
 }
 
 /**
- * @brief Turn LED on for 1 sec and off for 1 sec.
+ * @brief 
  * @param none
  * @retval none
  */
 void loop() {
   
-  
-  SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
-  digitalWrite(BP_NSS, LOW);
-  delay(100);
-  uint16_t buffer = ((ADPD4x_REG_CHIP_ID) << 1U) & ADPD400x_SPI_READ; 
-  SPI.transfer16(buffer);
-  SPI.transfer16(0x00);
-  digitalWrite(BP_NSS, HIGH);
-  delay(100);
-  SPI.endTransaction();
+  read_chip_id();
   blink_bp(2);
-  
   delay(1000);
+  
 
 }
 
@@ -150,30 +139,23 @@ void test_spi() {
 
 void read_chip_id() {
 
-
-  uint16_t RegAddress = ADPD4x_REG_CHIP_ID;
-
-  // 16 bits: 15 bit register address and 1 bit read command
-
-  uint16_t buffer = ((RegAddress) << 1U) & ADPD400x_SPI_READ; 
-  // Serial.println("buffer:");
-  // Serial.println(buffer);
-  // cout << "buffer:" << endl;
-  // cout << buffer <<endl;
-
   SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
-  digitalWrite(BP_NSS, LOW); //enable device
-  
-  uint16_t response = SPI.transfer16(buffer);
-
+  digitalWrite(BP_NSS, LOW);
+  delay(100);
+  uint16_t buffer = ((ADPD4x_REG_CHIP_ID) << 1U) & ADPD400x_SPI_READ; 
+  SPI.transfer16(buffer);
+  SPI.transfer16(0x00);
   digitalWrite(BP_NSS, HIGH);
+  delay(100);
   SPI.endTransaction();
-  // Serial.println("response:");
-  // Serial.println(response);
-  // cout << "response:" << endl;
-  // cout << response <<endl;
-  delay(200);
 
+}
+
+void read_chip_id_library() {
+  uint16_t addr = ADPD4x_REG_CHIP_ID;
+  uint16_t pData = 0U;
+
+  adi_adpddrv_RegRead(addr, &pData);
 }
 
 

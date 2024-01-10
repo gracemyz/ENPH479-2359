@@ -29,8 +29,8 @@
 #define datamode SPI_MODE0 // Check this!!!!
 /**
  * @brief    function to write a byte and read specified number of bytes from Adpd400 SPI
- * @param    pTxData: 8-bit register address pointer. Array of 2 bytes
- * @param    pRxData: 8-bit data pointer. Array of 4 bytes
+ * @param    pTxData: 8-bit register address and read bit pointer. Array of bytes
+ * @param    pRxData: 8-bit data pointer. Array of bytes
  * @param    TxSize: 16-bit size of the data to write to the hardware
  * @param    RxSize: 16-bit size of the data to read from the hardware
  * @retval   status: 0 (Success), -1 (Error)
@@ -38,20 +38,21 @@
 uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSize, uint16_t RxSize) {
     SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
     digitalWrite(BP_NSS, LOW); //enable device
+    delay(100);
 
-    // Write register address and READ command
-    uint16_t buffer = (pTxData[0] << 8) | (pTxData[1]);
-    SPI.transfer(&buffer, (int)TxSize);
+    for (int i = 0; i < (int)TxSize; i++) {
+        SPI.transfer(pTxData[i]);
+    }
 
     // The SPI protocol is based on a one byte OUT / one byte IN interface. 
     // For every byte expected to be received, one (dummy, typically 0x00 or 0xFF) byte must be sent.
-    for (int i=0; i < (int)RxSize; i++) {
+    for (int i = 0; i < (int)RxSize; i++) {
         pRxData[i] = SPI.transfer(0x00);
     }
     
     digitalWrite(BP_NSS, HIGH);
+    delay(100);
     SPI.endTransaction();
-
 
     return ((TxSize + RxSize) == sizeof(pTxData) + sizeof(pRxData))?ADI_OK:ADI_ERROR;
 
@@ -60,12 +61,17 @@ uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSiz
 uint16_t Adpd400x_SPI_Transmit(uint8_t *pTxData, uint16_t TxSize) {
     SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
     digitalWrite(BP_NSS, LOW); //enable device
+    delay(100);
 
     // Write register address and READ command
-    uint16_t buffer = (pTxData[0] << 8) | (pTxData[1]);
-    SPI.transfer(&buffer, (int)TxSize);
-    
+    for (int i = 0; i < TxSize; i++) {
+        SPI.transfer(pTxData[i]);
+    }
+
     digitalWrite(BP_NSS, HIGH);
+    delay(100);
     SPI.endTransaction();
+
+    return ADI_OK;
     
 }
