@@ -40,8 +40,11 @@ void setup() {
  */
 void loop() {
   
-  read_chip_id();
-  blink_bp(2);
+  // read_chip_id();
+  uint16_t nAddr = ADPD4x_REG_CHIP_ID;
+  uint16_t pnData = 0U;
+  adi_adpddrv_RegRead( nAddr,  &pnData);
+  blink_bp(3);
   delay(200);
   
 
