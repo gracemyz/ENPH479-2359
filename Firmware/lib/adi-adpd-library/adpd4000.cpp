@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include "adi_adpd_driver.h"
 #include "adi_adpd_reg.h"
+#include "adi_adpd_ssm.h"
 #include "adi_adpd_reg.h"
 #include "adpd4000.h"
 #include "Arduino.h"
@@ -32,43 +33,29 @@ void blink_bp(int num_blinks) {
  * @retval none
  */
 void test_spi() {
-  // uint16_t green_reg = ADPD4x_REG_LED_POW12_A;
 
-
-  uint16_t ledRegAddress = ADPD4x_REG_LED_POW12_A; // timing slot A, I think
-
-  // hardcoded lol. see adi_adpd_slotops_helper for a more flexible function 
-  // in order: LED1A 50mA, LED1A 100mA, LED1B 50mA, LED1B 100mA
-  // uint16_t led_values[4] = {32U, 64U, 160U, 192U};
+  uint16_t nUId = E_ADI_ADPD_SLOTA;
+  ADI_ADPD_LEDID nLed = E_ADI_ADPD_LED2A;
   uint16_t led_values[2] = {8U, 16U};
+  uint16_t ret;
 
-  // uint16_t led1A_50mA = 32U;
-  // uint16_t led1A_100mA = 64U;
-  // uint16_t led1B_50mA = 160U;
-  // uint16_t led1B_100mA = 192U;
 
-  // first 16 bits: 15 bit register address and 1 bit write command
-  uint16_t firsthalf = ((ledRegAddress) << 1U) | ADPD400x_SPI_WRITE; 
-  // if all bits are 0, then 0 current?
-  uint32_t led_off = ((firsthalf) << 16U) | (uint16_t) 0;
-  uint32_t buffer;
-  
-  int delay_ms = 200;
-  
-  SPI.beginTransaction(SPISettings(maxspeed, dataorder, datamode));
-  digitalWrite(BP_NSS, LOW); //enable device
+  adi_adpdssm_SetLedCurrent(nUId,  nLed, 32U);
+  delay(1000);
 
-  for (int i = 0; i < sizeof(led_values); i++) {
-    buffer = ((firsthalf) << 16U) | led_values[i];
-    SPI.transfer(&buffer, 4);
-    delay(delay_ms);
-    SPI.transfer(&led_off, 4);
-    delay(delay_ms);
-  }
-  digitalWrite(BP_NSS, HIGH);
-  SPI.endTransaction();
+
 
 }
+
+// void blink_indicate(int code, int vals, int size) {
+//   for (int i=0; i < size; i++) {
+//     if (code == vals[i]) {
+//       blink_bp(i);
+//       return;
+//     }
+
+//   }
+// }
 
 void read_chip_id() {
 
@@ -79,6 +66,17 @@ void read_chip_id() {
   SPI.transfer16(0x00);
   digitalWrite(BP_NSS, HIGH);
   SPI.endTransaction();
+
+}
+
+void read_chip_id_lib() {
+  uint16_t reg = ADPD4x_REG_CHIP_ID;
+  uint16_t data = 0U;
+  if (adi_adpddrv_RegRead(reg, &data) == 0) {
+    blink_bp(1);
+  } else {
+    blink_bp(2);
+  }
 
 }
 
@@ -111,7 +109,7 @@ uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSiz
     SPI.endTransaction();
 
 
-    return ((TxSize + RxSize) == sizeof(pTxData) + sizeof(pRxData))?ADI_OK:ADI_ERROR;
+    return ADI_OK;
 
 }
 
@@ -125,5 +123,20 @@ uint16_t Adpd400x_SPI_Transmit(uint8_t *pTxData, uint16_t TxSize) {
     
     digitalWrite(BP_NSS, HIGH);
     SPI.endTransaction();
+    return ADI_OK;
     
+}
+
+/* blinks once for SPI, twice for I2C, three times for none*/
+void get_com_mode() {
+  ADI_ADPD_COMM_MODE bus_mode = adi_adpddrv_GetComMode();
+  if (bus_mode == E_ADI_ADPD_SPI_BUS) {
+    blink_bp(1);
+  } else if (bus_mode == E_ADI_ADPD_I2C_BUS) {
+    blink_bp(2);
+  } else {
+    blink_bp(3);
+  }
+
+  delay(1000);  
 }
