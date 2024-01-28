@@ -218,15 +218,31 @@ uint16_t adi_adpddrv_RegWrite(uint16_t nAddr, uint16_t nRegValue)
   }
   else
   {
+
+    nTmpAddr = ((nAddr) << 1U) | ADPD400x_SPI_WRITE;
+    /* Prepare the transmit buffer */
+    anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
+    anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
+    anTxData[nTxSize++] = (uint8_t)(nRegValue >> 8U);
+    anTxData[nTxSize++] = (uint8_t)(nRegValue);
+
+    if (Adpd400x_SPI_Transmit(anTxData, nTxSize)!= ADI_ADPD_DRV_SUCCESS)
+    {
+      /* Update the trace variable with failure code, so the caller will get
+      status of their request */
+      nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
+    }
+
+
     /* Check the communication type and do register write */
-    if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_SPI_BUS) {
+    // if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_SPI_BUS) {
       /* To set the last bit high for write operation */
-      nTmpAddr = ((nAddr) << 1U) | ADPD400x_SPI_WRITE;
-      /* Prepare the transmit buffer */
-      anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
-      anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
-      anTxData[nTxSize++] = (uint8_t)(nRegValue >> 8U);
-      anTxData[nTxSize++] = (uint8_t)(nRegValue);
+      // nTmpAddr = ((nAddr) << 1U) | ADPD400x_SPI_WRITE;
+      // /* Prepare the transmit buffer */
+      // anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
+      // anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
+      // anTxData[nTxSize++] = (uint8_t)(nRegValue >> 8U);
+      // anTxData[nTxSize++] = (uint8_t)(nRegValue);
 
       /*
       The first argument to the function ADPD4x_SPI_Transmit is the register
@@ -241,60 +257,60 @@ uint16_t adi_adpddrv_RegWrite(uint16_t nAddr, uint16_t nRegValue)
       ADPD4x_SPI_Transmit() should be implemented in such a way that it transmits
       the data from anTxData buffer of size specified in the second argument.
       */
-      if (Adpd400x_SPI_Transmit(anTxData, nTxSize)!= ADI_ADPD_DRV_SUCCESS)
-      {
-        /* Update the trace variable with failure code, so the caller will get
-        status of their request */
-        nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
-      }
+      // if (Adpd400x_SPI_Transmit(anTxData, nTxSize)!= ADI_ADPD_DRV_SUCCESS)
+      // {
+      //   /* Update the trace variable with failure code, so the caller will get
+      //   status of their request */
+      //   nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
+      // }
     }
-    else if(gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_I2C_BUS)
-    {
-      /* Prepare the transmit buffer with register address, if register address
-      above 127 then we need to set bit-15 as '1'. Refer datasheet for more information*/
-      if (nAddr > 0x7FU)
-      {
-        nAddr = nAddr | ADPD400x_I2C_LONG_ADDRESS;
-        anTxData[nTxSize++] = (uint8_t)(nAddr >> 8U);
-        anTxData[nTxSize++] = (uint8_t)nAddr;
-      }
-      else
-      {
-        anTxData[nTxSize++] = (uint8_t)nAddr;
-      }
-      /* add the register value in transmit buffer */
-      anTxData[nTxSize++] = (uint8_t)(nRegValue >> 8U);
-      anTxData[nTxSize++] = (uint8_t)(nRegValue);
-      /*
-      The first argument to the function ADPD4x_I2C_Transmit is the register
-      address of the ADPD4x device and the 16 bits data value to be written to the
-      device register.
-      The 1st argument to the function ADPD4x_I2C_Transmit is the pointer to the
-      buffer of the size of three bytes in which first byte is the register
-      address of the ADPD4x device.
-      The second and the third bytes are the 16 bits data value to be written
-      to the device register
-      The 2nd argument is the size of the buffer in bytes (3 bytes).
-      ADPD4x_I2C_Transmit() should be implemented in such a way that it transmits
-      the data from anTxData buffer of size specified in the second argument.
-      */
+    // else if(gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_I2C_BUS)
+    // {
+    //   /* Prepare the transmit buffer with register address, if register address
+    //   above 127 then we need to set bit-15 as '1'. Refer datasheet for more information*/
+    //   if (nAddr > 0x7FU)
+    //   {
+    //     nAddr = nAddr | ADPD400x_I2C_LONG_ADDRESS;
+    //     anTxData[nTxSize++] = (uint8_t)(nAddr >> 8U);
+    //     anTxData[nTxSize++] = (uint8_t)nAddr;
+    //   }
+    //   else
+    //   {
+    //     anTxData[nTxSize++] = (uint8_t)nAddr;
+    //   }
+    //   /* add the register value in transmit buffer */
+    //   anTxData[nTxSize++] = (uint8_t)(nRegValue >> 8U);
+    //   anTxData[nTxSize++] = (uint8_t)(nRegValue);
+    //   /*
+    //   The first argument to the function ADPD4x_I2C_Transmit is the register
+    //   address of the ADPD4x device and the 16 bits data value to be written to the
+    //   device register.
+    //   The 1st argument to the function ADPD4x_I2C_Transmit is the pointer to the
+    //   buffer of the size of three bytes in which first byte is the register
+    //   address of the ADPD4x device.
+    //   The second and the third bytes are the 16 bits data value to be written
+    //   to the device register
+    //   The 2nd argument is the size of the buffer in bytes (3 bytes).
+    //   ADPD4x_I2C_Transmit() should be implemented in such a way that it transmits
+    //   the data from anTxData buffer of size specified in the second argument.
+    //   */
 
-      if (Adpd400x_I2C_Transmit((uint8_t *) anTxData, nTxSize) != ADI_ADPD_DRV_SUCCESS)
-      {
-        /* Update the trace variable with failure code, so the caller will get
-        status of their request */
-        nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
-      }
-    }
-    else
-    {
-      /*
-      1. This block will get execute when the communication type set as none.
-      2. Update the trace variable with failure code, so the caller will get
-      status of their request */
-      nRetCode = ADI_ADPD_DRV_PARAM_ERROR;
-    }
-  }
+    //   if (Adpd400x_I2C_Transmit((uint8_t *) anTxData, nTxSize) != ADI_ADPD_DRV_SUCCESS)
+    //   {
+    //     /* Update the trace variable with failure code, so the caller will get
+    //     status of their request */
+    //     nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
+    //   }
+    // }
+    // else
+    // {
+    //   /*
+    //   1. This block will get execute when the communication type set as none.
+    //   2. Update the trace variable with failure code, so the caller will get
+    //   status of their request */
+    //   nRetCode = ADI_ADPD_DRV_PARAM_ERROR;
+    // }
+  // }
   /* Return routine status to caller function */
   return nRetCode;
 }
@@ -321,72 +337,85 @@ uint16_t adi_adpddrv_RegRead(uint16_t nAddr, uint16_t *pnData)
   uint8_t anRxData[2] = {0U, 0U};
   /* Declare variable to prepare transmit buffer */
   uint8_t anTxData[2] = {0U, 0U};
-  /* Check the communication type and proceed with selected peripheral */
-  if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_SPI_BUS)
-  {
-    /* To set the last bit low for read operation */
-    nTmpAddr = (nAddr << 1U) & ADPD400x_SPI_READ;
+
+  nTmpAddr = (nAddr << 1U) & ADPD400x_SPI_READ;
     /* Prepare the transmit buffer with register address */
-    anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
-    anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
-    /*
-    The first argument to the function is the register address of the
-    ADPD4x device from where the data is to be read.
-    The 2nd argument is the pointer to the buffer of received data.
-    The size of this buffer should be equal to the number of data requested.
-    The 3rd argument is the size of transmit data in bytes.
-    The 4th argument is the size of requested data in bytes.
-    Adpd4x_SPI_Receive() should be implemented in such a way that it transmits
-    the register address from the first argument and receives the data
-    specified by the address in the second argument. The received data will
-    be of size specified by 3rd argument.
-    */
-    if (Adpd400x_SPI_Receive(anTxData, anRxData, nTxSize, 2U)!= ADI_ADPD_DRV_SUCCESS)
-    {
-      /* Update the trace variable with failure code, so the caller will get
-      status of their request	*/
-      nRetCode = ADI_ADPD_DRV_READ_ERROR;
-    }
-  }
-  else if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_I2C_BUS)
+  anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
+  anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
+
+  if (Adpd400x_SPI_Receive(anTxData, anRxData, nTxSize, 2U)!= ADI_ADPD_DRV_SUCCESS)
   {
-    /* Prepare the transmit buffer with register address, if register address
-    above 127 then we need to set bit-15 as '1'. Refer datasheet for more information*/
-    if (nAddr > 0x7FU)
-    {
-      nAddr = nAddr | ADPD400x_I2C_LONG_ADDRESS;
-      anTxData[nTxSize++] = (uint8_t)(nAddr >> 8U);
-      anTxData[nTxSize++] = (uint8_t)nAddr;
-    } else {
-      anTxData[nTxSize++] = (uint8_t)nAddr;
-    }
-    /*
-    The first argument to the function is the register address of the
-    ADPD4x device from where the data is to be read.
-    The 2nd argument is the pointer to the buffer of received data.
-    The size of this buffer should be equal to the number of data requested.
-    The 3rd argument is the size of transmit data in bytes.
-    The 4th argument is the size of requested data in bytes.
-    Adpd4x_I2C_TxRx() should be implemented in such a way that it transmits
-    the register address from the first argument and receives the data
-    specified by the address in the second argument. The received data will
-    be of size specified by 3rd argument.
-    */
-    if (Adpd400x_I2C_TxRx((uint8_t *) anTxData, (uint8_t *) anRxData, nTxSize, 2U) != ADI_ADPD_DRV_SUCCESS)
-    {
-      /* Update the trace variable with failure code, so the caller will get
-      status of their request */
-      nRetCode = ADI_ADPD_DRV_READ_ERROR;
-    }
+    /* Update the trace variable with failure code, so the caller will get
+    status of their request	*/
+    nRetCode = ADI_ADPD_DRV_READ_ERROR;
   }
-  else
-  {
-    /*
-    1. This block will get execute when the communication type set as none.
-    2. Update the trace variable with failure code, so the caller will get
-    status of their request */
-    nRetCode = ADI_ADPD_DRV_PARAM_ERROR;
-  }
+  
+  // /* Check the communication type and proceed with selected peripheral */
+  // if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_SPI_BUS)
+  // {
+  //   /* To set the last bit low for read operation */
+  //   nTmpAddr = (nAddr << 1U) & ADPD400x_SPI_READ;
+  //   /* Prepare the transmit buffer with register address */
+  //   anTxData[nTxSize++] = (uint8_t)(nTmpAddr >> 8U);
+  //   anTxData[nTxSize++] = (uint8_t)(nTmpAddr);
+  //   /*
+  //   The first argument to the function is the register address of the
+  //   ADPD4x device from where the data is to be read.
+  //   The 2nd argument is the pointer to the buffer of received data.
+  //   The size of this buffer should be equal to the number of data requested.
+  //   The 3rd argument is the size of transmit data in bytes.
+  //   The 4th argument is the size of requested data in bytes.
+  //   Adpd4x_SPI_Receive() should be implemented in such a way that it transmits
+  //   the register address from the first argument and receives the data
+  //   specified by the address in the second argument. The received data will
+  //   be of size specified by 3rd argument.
+  //   */
+  //   if (Adpd400x_SPI_Receive(anTxData, anRxData, nTxSize, 2U)!= ADI_ADPD_DRV_SUCCESS)
+  //   {
+  //     /* Update the trace variable with failure code, so the caller will get
+  //     status of their request	*/
+  //     nRetCode = ADI_ADPD_DRV_READ_ERROR;
+  //   }
+  // }
+  // else if (gAdiAdpdDrvInst.nAdpd400xCommMode == E_ADI_ADPD_I2C_BUS)
+  // {
+  //   /* Prepare the transmit buffer with register address, if register address
+  //   above 127 then we need to set bit-15 as '1'. Refer datasheet for more information*/
+  //   if (nAddr > 0x7FU)
+  //   {
+  //     nAddr = nAddr | ADPD400x_I2C_LONG_ADDRESS;
+  //     anTxData[nTxSize++] = (uint8_t)(nAddr >> 8U);
+  //     anTxData[nTxSize++] = (uint8_t)nAddr;
+  //   } else {
+  //     anTxData[nTxSize++] = (uint8_t)nAddr;
+  //   }
+  //   /*
+  //   The first argument to the function is the register address of the
+  //   ADPD4x device from where the data is to be read.
+  //   The 2nd argument is the pointer to the buffer of received data.
+  //   The size of this buffer should be equal to the number of data requested.
+  //   The 3rd argument is the size of transmit data in bytes.
+  //   The 4th argument is the size of requested data in bytes.
+  //   Adpd4x_I2C_TxRx() should be implemented in such a way that it transmits
+  //   the register address from the first argument and receives the data
+  //   specified by the address in the second argument. The received data will
+  //   be of size specified by 3rd argument.
+  //   */
+  //   if (Adpd400x_I2C_TxRx((uint8_t *) anTxData, (uint8_t *) anRxData, nTxSize, 2U) != ADI_ADPD_DRV_SUCCESS)
+  //   {
+  //     /* Update the trace variable with failure code, so the caller will get
+  //     status of their request */
+  //     nRetCode = ADI_ADPD_DRV_READ_ERROR;
+  //   }
+  // }
+  // else
+  // {
+  //   /*
+  //   1. This block will get execute when the communication type set as none.
+  //   2. Update the trace variable with failure code, so the caller will get
+  //   status of their request */
+  //   nRetCode = ADI_ADPD_DRV_PARAM_ERROR;
+  // }
   /* Copy the register value from receive buffer to output parameter with byte order [15:0]*/
   *pnData = (((uint16_t)anRxData[0]) << (8U)) + (anRxData[1]);
   /* Return routine status to caller function */
@@ -1059,12 +1088,10 @@ static uint16_t _adi_adpddrv_SelComMode(void)
   uint16_t nRetCode = ADI_ADPD_DRV_PARAM_ERROR;
   /* Declare variable to store device ID */
   uint16_t nDevId = 0U;
-  /* assign the communication type as I2C */
-  gAdiAdpdDrvInst.nAdpd400xCommMode = E_ADI_ADPD_I2C_BUS;
-  /* read the device ID register */
+
+  gAdiAdpdDrvInst.nAdpd400xCommMode = E_ADI_ADPD_SPI_BUS;
   if (adi_adpddrv_RegRead(ADPD4x_REG_CHIP_ID, &nDevId) == ADI_ADPD_DRV_SUCCESS)
   {
-    /* check the device ID value is valid */
     if ((nDevId & ADPD400x_ID) == ADPD400x_ID)
     {
       /* Update the trace variable with success code, so the caller will get
@@ -1072,22 +1099,36 @@ static uint16_t _adi_adpddrv_SelComMode(void)
       nRetCode = ADI_ADPD_DRV_SUCCESS;
     }
   }
-  /* if the previous device ID read operation failed then try the SPI peripheral */
-  if(nRetCode != ADI_ADPD_DRV_SUCCESS)
-  {
-     /* assign the communication type as SPI */
-    gAdiAdpdDrvInst.nAdpd400xCommMode = E_ADI_ADPD_SPI_BUS;
-    /* read the device ID register */
-    if (adi_adpddrv_RegRead(ADPD4x_REG_CHIP_ID, &nDevId) == ADI_ADPD_DRV_SUCCESS)
-    {
-      if ((nDevId & ADPD400x_ID) == ADPD400x_ID)
-      {
-        /* Update the trace variable with success code, so the caller will get
-        status of their request */
-        nRetCode = ADI_ADPD_DRV_SUCCESS;
-      }
-    }
-  }
+
+  // /* assign the communication type as I2C */
+  // gAdiAdpdDrvInst.nAdpd400xCommMode = E_ADI_ADPD_I2C_BUS;
+  // /* read the device ID register */
+  // if (adi_adpddrv_RegRead(ADPD4x_REG_CHIP_ID, &nDevId) == ADI_ADPD_DRV_SUCCESS)
+  // {
+  //   /* check the device ID value is valid */
+  //   if ((nDevId & ADPD400x_ID) == ADPD400x_ID)
+  //   {
+  //     /* Update the trace variable with success code, so the caller will get
+  //     status of their request */
+  //     nRetCode = ADI_ADPD_DRV_SUCCESS;
+  //   }
+  // }
+  // /* if the previous device ID read operation failed then try the SPI peripheral */
+  // if(nRetCode != ADI_ADPD_DRV_SUCCESS)
+  // {
+  //    /* assign the communication type as SPI */
+  //   gAdiAdpdDrvInst.nAdpd400xCommMode = E_ADI_ADPD_SPI_BUS;
+  //   /* read the device ID register */
+  //   if (adi_adpddrv_RegRead(ADPD4x_REG_CHIP_ID, &nDevId) == ADI_ADPD_DRV_SUCCESS)
+  //   {
+  //     if ((nDevId & ADPD400x_ID) == ADPD400x_ID)
+  //     {
+  //       /* Update the trace variable with success code, so the caller will get
+  //       status of their request */
+  //       nRetCode = ADI_ADPD_DRV_SUCCESS;
+  //     }
+  //   }
+  // }
 
   if(nRetCode != ADI_ADPD_DRV_SUCCESS)
   {
