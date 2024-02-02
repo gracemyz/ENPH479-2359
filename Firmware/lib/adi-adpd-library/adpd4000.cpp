@@ -21,9 +21,9 @@
 void blink_bp(int num_blinks) {
   for (int i=0; i < num_blinks; i++) {
     delay(BLINK_DUR_ms);
-    digitalWrite(BP_LED_BUILTIN, LOW);
-    delay(BLINK_DUR_ms);
     digitalWrite(BP_LED_BUILTIN, HIGH);
+    delay(BLINK_DUR_ms);
+    digitalWrite(BP_LED_BUILTIN, LOW);
   }
 }
 
@@ -39,8 +39,16 @@ void test_spi() {
   uint16_t led_values[2] = {8U, 16U};
   uint16_t ret;
 
+  // read_chip_id_lib();
+  ret = adi_adpdssm_SetLedCurrent(nUId,  nLed, 0);
+  uint16_t *pLedCurrent;
+  adi_adpdssm_GetLedCurrent(nUId, nLed, pLedCurrent);
+  if (*pLedCurrent == 0) {
+    blink_bp(2);
 
-  adi_adpdssm_SetLedCurrent(nUId,  nLed, 32U);
+  } else {
+    blink_bp(1);
+  }
   delay(1000);
 
 

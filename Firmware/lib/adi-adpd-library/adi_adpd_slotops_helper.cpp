@@ -2194,23 +2194,26 @@ uint16_t adi_adpdssm_loadDcfg(tAdiAdpdDcfgInst *pnCfg, uint8_t nSlot)
 
   if (pnCfg != 0U)
   {
-    if(nSlot != 0xFFU)
+    if(nSlot != 0xFFU) // non default config
     {
       nRegAddr = adi_adpd_GetSlotRegAddr(nSlot, pnCfg[0U].addr);
     }
-    else
+    else // generic config
     {
       nRegAddr = pnCfg[0].addr;
     }
 
     nRegData = pnCfg[0U].value;
+    
 
     while((nRegData != 0xFFFFU) && (nRet == ADI_ADPD_DRV_SUCCESS))
-    {
+    { 
+      // blink_bp(1);
       nRet = adi_adpddrv_RegWrite(nRegAddr, nRegData);
       /* debug("Config:, 0x%X ,  0x%X \r\n", nRegAddr, nRegData); */
       if (nRet == ADI_ADPD_DRV_SUCCESS)
       {
+        blink_bp(1);
         nIdx++;
         if(nSlot != 0xFFU)
         {

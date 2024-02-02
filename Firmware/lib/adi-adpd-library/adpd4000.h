@@ -37,6 +37,7 @@ uint16_t Adpd400x_SPI_Receive(uint8_t *pTxData, uint8_t *pRxData, uint16_t TxSiz
 uint16_t Adpd400x_SPI_Transmit(uint8_t *pTxData, uint16_t TxSize);
 uint16_t Adpd400x_I2C_Transmit(uint8_t *register_address, uint16_t txsize);
 uint16_t Adpd400x_I2C_TxRx(uint8_t *register_address, uint8_t *buffer, uint16_t txsize, uint16_t rxsize);
+// uint16_t load_single_int_config(tAdiAdpdDcfgInst);
 void MCU_HAL_Delay(uint32_t delay);
 
 void blink_bp(int num_blinks);
