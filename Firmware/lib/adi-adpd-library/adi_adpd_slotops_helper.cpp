@@ -53,10 +53,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <Arduino.h>
 #include <stdbool.h>
+#include "adpd4000.h"
 #include "adi_adpd_reg.h"
 #include "adi_adpd_driver.h"
 #include "adi_adpd_ssm.h"
+
 
 /*----------------------------- Defines --------------------------------------*/
 #define _USE_LCM_AS_WATERMARK_    (1U)     /*!< Set this macro as '1' if want to set FIFO threshold as calculated LCM samples */
@@ -156,10 +159,12 @@ uint16_t adi_adpdssm_setOperationMode(uint8_t nOpMode) {
   else if (nOpMode == E_ADI_ADPD_MODE_SAMPLE)
   {
     nRetCode = adi_adpdssm_getSlotInfo();
+    Serial.println("got slot info");
     goAdiAdpdSSmInst->oAdpdSlotInst.nReadSequence = 1U;
     goAdiAdpdSSmInst->oAdpdSlotInst.nInterruptSequence = 1U;
     goAdiAdpdSSmInst->oAdpdSlotInst.nWriteSequence = 1U;
     nRetCode = _adi_adpdssm_getFifoLevel(&nSampleSize);
+    Serial.println("got fifo level");
 
     nDevID = goAdiAdpdSSmInst->oAdpdSlotInst.nDevID;
     if(nDevID == ADPD400x_ID)
@@ -2191,7 +2196,6 @@ uint16_t adi_adpdssm_loadDcfg(tAdiAdpdDcfgInst *pnCfg, uint8_t nSlot)
   uint16_t nRegData;
   uint16_t nRet = ADI_ADPD_SSM_SUCCESS;
   uint8_t nIdx = 0U;
-
   if (pnCfg != 0U)
   {
     if(nSlot != 0xFFU) // non default config
@@ -2208,12 +2212,13 @@ uint16_t adi_adpdssm_loadDcfg(tAdiAdpdDcfgInst *pnCfg, uint8_t nSlot)
 
     while((nRegData != 0xFFFFU) && (nRet == ADI_ADPD_DRV_SUCCESS))
     { 
+      Serial.println(nRegAddr, HEX);
       // blink_bp(1);
       nRet = adi_adpddrv_RegWrite(nRegAddr, nRegData);
       /* debug("Config:, 0x%X ,  0x%X \r\n", nRegAddr, nRegData); */
       if (nRet == ADI_ADPD_DRV_SUCCESS)
       {
-        blink_bp(1);
+
         nIdx++;
         if(nSlot != 0xFFU)
         {

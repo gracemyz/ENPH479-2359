@@ -1,5 +1,6 @@
 
 #include <SPI.h>
+
 #include "adi_adpd_driver.h"
 #include "adi_adpd_reg.h"
 #include "adi_adpd_ssm.h"
@@ -7,6 +8,7 @@
 #include "adpd4000.h"
 #include "Arduino.h"
 #include "stdint.h" 
+
 
 /* ADI */
 #define ADI_OK      0
@@ -55,15 +57,7 @@ void test_spi() {
 
 }
 
-// void blink_indicate(int code, int vals, int size) {
-//   for (int i=0; i < size; i++) {
-//     if (code == vals[i]) {
-//       blink_bp(i);
-//       return;
-//     }
 
-//   }
-// }
 
 void read_chip_id() {
 
