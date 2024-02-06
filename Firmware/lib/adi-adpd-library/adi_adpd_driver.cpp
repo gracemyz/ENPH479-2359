@@ -51,6 +51,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <Arduino.h>
 #include "adi_adpd_reg.h"
 #include "adi_adpd_driver.h"
 
@@ -148,6 +149,7 @@ uint16_t adi_adpddrv_OpenDriver(void)
         status of their request */
         nRetCode = ADI_ADPD_DRV_WRITE_ERROR;
       }
+      Serial.println("transmitted software reset");
     }
   }
 
