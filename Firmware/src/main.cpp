@@ -16,23 +16,25 @@ tAdiAdpdDcfgInst dcfg_ADPD4000[39] = {
   {0x000dU, 0x4E20U}, // low freq osc period set to 20000 (s?)
   {0x0006U, 0x0003U}, // generate interrupt when number of bytes in fifo is more than 3
   {0x0014U, 0x8000U}, // enable drive of the FIFO threshold status on Interrupt X.
-  {0x001eU, 0x0000U}, // do not enable interrupts??
+  {0x001eU, 0x0000U}, // do not enable interrupt status bytes?
   {0x0020U, 0x0004U}, // input pair in1 and in2 sleep state: in1 connected to vc1, in2 floating
   {0x0021U, 0x0000U}, // input config: all inputs are single ended. vc1 and vc2 set to avdd during sleep
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
   {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
   {0x0024U, 0x0000U}, // gpio 2 and 3 output signal logic 0
-
   {0x010eU, 0x2000U}, // adc offset
   {0x0110U, 0x0004U}, // data format
 };
 
-tAdiAdpdDcfgInst single_integration_config[19] =
+tAdiAdpdDcfgInst single_integration_config[26] =
 {
   {0x0009U, 0x0085U}, // set high freq osc to half max frequency?
   {0x000bU, 0x02faU}, // set low freq osc to about 0.75 max
   {0x000fU, 0x0006U}, // use internal oscs. Use GPIO0 for alt clock. Use 1 MHz as low freq and enable it.
   {0x000dU, 0x4E20U}, // low freq osc period set to 20000 (s?)
+  {0x0006U, 0x0003U}, // generate interrupt when number of bytes in fifo is more than 3
+  {0x0014U, 0x8000U}, // enable drive of the FIFO threshold status on Interrupt X.
+  {0x001eU, 0x0000U}, // do not enable interrupt status bytes?
   {0x0020U, 0x0004U}, // input pair in1 and in2 sleep state: in1 connected to vc1, in2 floating
   {0x0021U, 0x0000U}, // input config: all inputs are single ended. vc1 and vc2 set to avdd during sleep
   {ADPD4x_REG_TS_CTRL_A, 0x0000U}, // sample type A: default setting 0 for default sampling mode
@@ -48,11 +50,17 @@ tAdiAdpdDcfgInst single_integration_config[19] =
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
   {ADPD4x_REG_INTEG_OFFSET_A, 0x0206U}, // integ offset. Needs to be optimzed!
-  {ADPD4x_REG_COUNTS_A, 0x0155U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
+  {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
+  {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
+  {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
+  {0x0024U, 0x0000U}, // gpio 2 and 3 output signal logic 0
+  // {0x010eU, 0x2000U}, // adc offset
+  {0x0110U, 0x0004U}, // data format: 4 bytes signal data
   {0x0010U, 0x0000U}, // operation mode idle
   {0,0xFFFFU} // sentinel for end of loop???
 };
 
+uint8_t aFifoDataBuf[MAX_SAMPLES_IN_FIFO];
 static tAdiAdpdSSmInst oAdiAppInst;
 
 
@@ -105,7 +113,7 @@ void setup () {
 }
 
 void loop () {
-  uint8_t aFifoDataBuf[MAX_SAMPLES_IN_FIFO];
+
   uint16_t nAdpdFifoLevelSize;
   ADI_ADPD_COMM_MODE bus_mode;
   uint32_t adpd_ch1 = 0U;
@@ -123,13 +131,16 @@ void loop () {
     adi_adpddrv_RegWrite(ADPD4x_REG_INT_STATUS_DATA, 0x8000);
     /* Read the size of the data available in the FIFO */
     nRetValue = adi_adpdssm_getFifoLvl(&nAdpdFifoLevelSize);
-    if (nRetValue != ADI_ADPD_DRV_SUCCESS)
-        continue;
+    if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
+      Serial.println("get fifo level error");
+      continue;
+    }
     /* Read the fifo data available in the FIFO */
     nRetValue = adi_adpddrv_ReadFifoData(nAdpdFifoLevelSize, &aFifoDataBuf[0]);
-    if (nRetValue != ADI_ADPD_DRV_SUCCESS)
+    if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
+        Serial.println("read fifo data error");
         continue;
-
+    }
     loop = 0U;
     adpd_ch1 = 0U;
     /* Read the data from the FIFO and print them */
@@ -150,7 +161,11 @@ void loop () {
         loop += oAdiAppInst.oAdpdSlotInst.nTotalSlotSz;
         tick += 1;
     }
+    // Serial.print(loop);
+    // Serial.println(" loop");
+
   }
+  delay(43200000); 
 }
 
 
