@@ -39,6 +39,7 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {0x0021U, 0x0000U}, // input config: all inputs are single ended. vc1 and vc2 set to avdd during sleep
   {ADPD4x_REG_TS_CTRL_A, 0x0000U}, // sample type A: default setting 0 for default sampling mode
   {ADPD4x_REG_TS_PATH_A, 0x1DAU}, // signal path selection: TIA, BPF, integrator, and ADC.
+  // {ADPD4x_REG_TS_PATH_A, 0x0E6}, // TIA ADC mode
   {ADPD4x_REG_INPUTS_A, 0x0005U}, // 101: IN1 connected to channel 1; IN2 connected to channel 2; all else disconnected
   {ADPD4x_REG_CATHODE_A, 0x5002U}, // precon anode to TIA_VREF, set 250 mV reverse bias across photodiode
   // set TIA_VREF to 1.265 V;
@@ -49,7 +50,7 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
-  {ADPD4x_REG_INTEG_OFFSET_A, 0x0206U}, // integ offset. Needs to be optimzed!
+  {ADPD4x_REG_INTEG_OFFSET_A, 0x1U}, // integ offset. Example had 0x0206.
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
   {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
@@ -113,59 +114,62 @@ void setup () {
 }
 
 void loop () {
+  optimize_int_sequence(true);
 
-  uint16_t nAdpdFifoLevelSize;
-  ADI_ADPD_COMM_MODE bus_mode;
-  uint32_t adpd_ch1 = 0U;
-  uint16_t loop = 0U;
-  static uint32_t tick = 0U;
+  // uint16_t nAdpdFifoLevelSize;
+  // ADI_ADPD_COMM_MODE bus_mode;
+  // uint32_t adpd_ch1 = 0U;
+  // uint16_t loop = 0U;
+  // static uint32_t tick = 0U;
+
+  // uint16_t offset = 0;
     
 
-  while(1) {
-    /* Wait for FIFO_TH Interrupt, see ADPD400x_ISR
-    *  Wait forever for event '1', auto clear 
-    */
-    // adpd4x_int_event.wait_any(1U); 
-    uint32_t nRetValue = 0U;
-    // Not using ADPD400x auto clear int flag -> need to clear
-    adi_adpddrv_RegWrite(ADPD4x_REG_INT_STATUS_DATA, 0x8000);
-    /* Read the size of the data available in the FIFO */
-    nRetValue = adi_adpdssm_getFifoLvl(&nAdpdFifoLevelSize);
-    if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
-      Serial.println("get fifo level error");
-      continue;
-    }
-    /* Read the fifo data available in the FIFO */
-    nRetValue = adi_adpddrv_ReadFifoData(nAdpdFifoLevelSize, &aFifoDataBuf[0]);
-    if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
-        Serial.println("read fifo data error");
-        continue;
-    }
-    loop = 0U;
-    adpd_ch1 = 0U;
-    /* Read the data from the FIFO and print them */
-    while (nAdpdFifoLevelSize != 0u) {
+  // while(1) {
+  //   /* Wait for FIFO_TH Interrupt, see ADPD400x_ISR
+  //   *  Wait forever for event '1', auto clear 
+  //   */
+  //   // adpd4x_int_event.wait_any(1U); 
+  //   uint32_t nRetValue = 0U;
+  //   // Not using ADPD400x auto clear int flag -> need to clear
+  //   adi_adpddrv_RegWrite(ADPD4x_REG_INT_STATUS_DATA, 0x8000);
+  //   /* Read the size of the data available in the FIFO */
+  //   nRetValue = adi_adpdssm_getFifoLvl(&nAdpdFifoLevelSize);
+  //   if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
+  //     Serial.println("get fifo level error");
+  //     continue;
+  //   }
+  //   /* Read the fifo data available in the FIFO */
+  //   nRetValue = adi_adpddrv_ReadFifoData(nAdpdFifoLevelSize, &aFifoDataBuf[0]);
+  //   if (nRetValue != ADI_ADPD_DRV_SUCCESS) {
+  //       Serial.println("read fifo data error");
+  //       continue;
+  //   }
+  //   loop = 0U;
+  //   adpd_ch1 = 0U;
+  //   /* Read the data from the FIFO and print them */
+  //   while (nAdpdFifoLevelSize != 0u) {
       
-        /* Byte swapping is needed to print ADPD data in proper format */
-        adpd_ch1 = ((aFifoDataBuf[loop] << 8) +
-                    (aFifoDataBuf[loop + 1]) +
-                    (aFifoDataBuf[loop + 2] << 24) +
-                    (aFifoDataBuf[loop + 3] << 16));
-        // Serial.print(nAdpdFifoLevelSize);
-        // Serial.print(",");
-        // Serial.print(tick);
+  //       /* Byte swapping is needed to print ADPD data in proper format */
+  //       adpd_ch1 = ((aFifoDataBuf[loop] << 8) +
+  //                   (aFifoDataBuf[loop + 1]) +
+  //                   (aFifoDataBuf[loop + 2] << 24) +
+  //                   (aFifoDataBuf[loop + 3] << 16));
+  //       // Serial.print(nAdpdFifoLevelSize);
+  //       // Serial.print(",");
+  //       // Serial.print(tick);
         
-        Serial.println(adpd_ch1);
+  //       Serial.println(adpd_ch1);
 
-        nAdpdFifoLevelSize -= oAdiAppInst.oAdpdSlotInst.nTotalSlotSz;
-        loop += oAdiAppInst.oAdpdSlotInst.nTotalSlotSz;
-        tick += 1;
-    }
-    // Serial.print(loop);
-    // Serial.println(" loop");
+  //       nAdpdFifoLevelSize -= oAdiAppInst.oAdpdSlotInst.nTotalSlotSz;
+  //       loop += oAdiAppInst.oAdpdSlotInst.nTotalSlotSz;
+  //       tick += 1;
+  //   }
+  //   // Serial.print(loop);
+  //   // Serial.println(" loop");
 
-  }
-  delay(43200000); 
+  // }
+  // delay(43200000); 
 }
 
 

@@ -143,3 +143,54 @@ void get_com_mode() {
   delay(1000);  
 }
 
+void optimize_int_sequence(bool fine) {
+  // coarse
+  if (fine == false) {
+    for (uint16_t offset = 0; offset < 100; offset++) {
+    uint16_t upper = 0U;
+    uint16_t lower = 0U;
+
+    for (int i = 0; i < 5; i++) { // take a few measurements
+      delay(50);
+      adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
+      adi_adpddrv_RegWrite(0x010B, offset);
+      adi_adpddrv_RegRead(0x0030, &upper);
+      adi_adpddrv_RegRead(0x0031, &lower);
+      Serial.print(offset);
+      Serial.print(",");
+      Serial.print(upper);
+      Serial.print(",");
+      Serial.println(lower);
+      adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
+    }
+    } 
+
+  }
+  if (fine == true){
+    for (uint16_t offset = 0; offset < 32; offset++) {
+      uint16_t upper = 0U;
+      uint16_t lower = 0U;
+      uint16_t reg =  (offset << 8);
+      float val = 0.03125*offset;
+      for (int i = 0; i < 5; i++) { // take a few measurements
+        delay(50);
+        adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
+        adi_adpddrv_RegWrite(0x010B, reg);
+        adi_adpddrv_RegRead(0x0030, &upper);
+        adi_adpddrv_RegRead(0x0031, &lower);
+        Serial.print(offset);
+        Serial.print(",");
+        Serial.print(val);
+        Serial.print(",");
+        Serial.print(upper);
+        Serial.print(",");
+        Serial.println(lower);
+        adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
+      }
+
+  }
+}
+
+  // fine
+  return;
+}
