@@ -159,11 +159,11 @@ uint16_t adi_adpdssm_setOperationMode(uint8_t nOpMode) {
   else if (nOpMode == E_ADI_ADPD_MODE_SAMPLE)
   {
     nRetCode = adi_adpdssm_getSlotInfo();
-    Serial.println("got slot info");
     goAdiAdpdSSmInst->oAdpdSlotInst.nReadSequence = 1U;
     goAdiAdpdSSmInst->oAdpdSlotInst.nInterruptSequence = 1U;
     goAdiAdpdSSmInst->oAdpdSlotInst.nWriteSequence = 1U;
     nRetCode = _adi_adpdssm_getFifoLevel(&nSampleSize);
+    
     Serial.println("got fifo level");
 
     nDevID = goAdiAdpdSSmInst->oAdpdSlotInst.nDevID;
@@ -1902,6 +1902,7 @@ uint16_t adi_adpdssm_getSamplSz(uint8_t nNumSampl, uint32_t *pSeqNum, uint16_t *
     /* Form a loop to run given number of samples */
     for (nSampleIndex = 0U; nSampleIndex < nNumSampl; nSampleIndex++)
     {
+      // Serial.println(nSampleIndex);
       /* Set temporary variable value to '0', to calculate new sample size */
       nTemp = 0U;
       /* Get_Sample_Size */
@@ -2112,6 +2113,7 @@ uint16_t adi_adpdssm_getSlotInfo(void)
     adi_adpdssm_getDataOutputRate(nIndex);
     }
   }
+
   return nRetVal;
 }
 
@@ -2128,11 +2130,13 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
 {
   uint16_t nRegValue = 0U;
   uint32_t nSampleFrq = 0U , lfOSC;
+
   uint16_t nRetCode = ADI_ADPD_DRV_SUCCESS;
   /* Extract slot information from UID value */
   uint16_t nSlot = nSlotNum & 0x00FFU;
   /* Check the requested slot and input selection value is valid */
   nRetCode = _adi_adpdssm_CheckParamsForSetSlotData(nSlot);
+
   if(nRetCode != ADI_ADPD_SSM_SUCCESS)
   {
     nRetCode = ADI_ADPD_SSM_PARAM_ERROR;
@@ -2140,6 +2144,8 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
   else
   {
     nRetCode = adi_adpddrv_RegRead(ADPD4x_REG_SYS_CTL, &nRegValue);
+    Serial.print("reg read ret code ");
+    Serial.println(nRetCode);
     nRegValue &= BITM_SYS_CTL_LFOSC_SEL;
     nRegValue >>= BITP_SYS_CTL_LFOSC_SEL;
     if (nRegValue == 1U) {
@@ -2150,11 +2156,15 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
       lfOSC = 32000U;    /* 32k clock */
     }
     nRetCode = adi_adpddrv_RegRead32B(ADPD4x_REG_TS_FREQ, &nSampleFrq);
+    Serial.print("32 read ret code ");
+    Serial.println(nRetCode);
+
     if(nSampleFrq != 0U)
     {
       nSampleFrq = lfOSC / nSampleFrq;
       /* Read the decimation value */
       nRetCode = adi_adpddrv_RegRead(ADPD4x_REG_DECIMATE_A + (nSlot * 0x20U), &nRegValue);
+      Serial.println(nRegValue);
       /* Extract r_decimation factor from the register value */
       goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlot].nDecimation =(uint8_t)((nRegValue & BITM_DECIMATE_A_DECIMATE_FACTOR_A) >> \
         BITP_DECIMATE_A_DECIMATE_FACTOR_A) + (1U);
@@ -2173,6 +2183,9 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
     }
   }
   /* Return routine status to caller function */
+  // Serial.print(" data rate is ");
+  // Serial.println(goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlot].nOutputDataRate);
+  // Serial.println(nRetCode);
   return nRetCode;
 }
 
@@ -2590,9 +2603,13 @@ static void _adi_adpdssm_CalculateSamplSz(uint32_t nSequenceNumber, uint16_t *pT
       if ((goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlotIndex].nDecimation != 0U) &&
           ((goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlotIndex].nIsActive == 1U)))
       {
+        // Serial.println(nSequenceNumber);
+        // Serial.println(goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlotIndex].nOutputDataRate);
         /* Do the condition check to identify whether given sample number is satisfy with corresponding slot decimation value */
         if(adi_adpdssm_FrequencyRatioStatus(nSequenceNumber, goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlotIndex].nOutputDataRate) == 1U)
         {
+          // Serial.println("entered 2");
+          // Serial.println(goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlotIndex].oSlotDataSz.nSignDataSz);
           /* Calculate the sample size with Data size value and add it to sample size tracking variable */
           nSampleSize = nSampleSize + (uint16_t)(
 #ifdef DARK_EN
@@ -2895,6 +2912,7 @@ static uint16_t adi_adpdssm_FrequencyRatioStatus(uint16_t nSampleSeq, uint16_t n
   /* Check the given input parameter values is valid, if not return parameter error */
   if((nSampleFreq == 0U) || (nSampleSeq == 0U))
   {
+    // Serial.println(" param error ");
     nRetCode = ADI_ADPD_SSM_PARAM_ERROR;
   }
   else

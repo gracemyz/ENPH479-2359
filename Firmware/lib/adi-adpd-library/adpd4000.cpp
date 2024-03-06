@@ -143,7 +143,56 @@ void get_com_mode() {
   delay(1000);  
 }
 
+void poll_int_status() {
+  Serial.println("polling");
+  adi_adpddrv_RegWrite(0x0007, 1U);
+  uint16_t int_status;
+  uint16_t upper;
+  uint16_t lower;
+
+  int array_size = 1000;
+
+  unsigned long times[array_size];
+  uint16_t upper_vals[array_size];
+  uint16_t lower_vals[array_size];
+
+  int i = 0;
+
+
+  while(1) {
+    
+    adi_adpddrv_RegRead(0x0001, &int_status);
+    if (int_status == 32769) { // last bit is 1, ie time slot A updated
+      // adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
+      adi_adpddrv_RegRead(0x0030, &upper_vals[i]);
+      // adi_adpddrv_RegRead(0x0031, &lower_vals[i]);
+      // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
+
+      times[i] = micros();
+
+      i++;
+
+    }
+
+    // Check if the array is full
+    if (i >= array_size) {
+      // Print or do something with the filled arrays
+      Serial.println("starting");
+      for (int j = 0; j < array_size; j++) {
+        Serial.print(times[j]);
+        Serial.print(",");
+        Serial.println(upper_vals[j]);
+        // Serial.print(",");
+        // Serial.println(lower_vals[j]);
+      }
+      i = 0; // Reset index
+    }
+    
+  }
+}
+
 void optimize_int_sequence(bool fine) {
+  
   // coarse
   if (fine == false) {
     for (uint16_t offset = 0; offset < 100; offset++) {

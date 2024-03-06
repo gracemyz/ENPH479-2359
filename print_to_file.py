@@ -1,9 +1,9 @@
 import serial
 import csv
 
-arduino_port = "COM5" #serial port of Arduino
+arduino_port = "COM3" #serial port of Arduino
 baud = 9600 #arduino uno runs at 9600 baud
-fileName="offset optimization_table blocking_fine_0us.csv" #name of the CSV file generated
+fileName="finger long.csv" #name of the CSV file generated
 
 ser = serial.Serial(arduino_port, baud)
 print("Connected to Arduino port:" + arduino_port)
@@ -12,7 +12,7 @@ print("Created file")
 
 photodiode_data = []
 
-samples = 500
+samples = 3000
 
 
 
@@ -23,7 +23,7 @@ with open(fileName, 'w', encoding='UTF8', newline='') as f:
     for i in range(samples):
         getData=ser.readline()
         readings = getData.decode('utf-8').strip().split(",")
-        print(readings)
+        # print(readings)
 
         writer.writerow(readings)
 

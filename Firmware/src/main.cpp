@@ -28,6 +28,7 @@ tAdiAdpdDcfgInst dcfg_ADPD4000[39] = {
 
 tAdiAdpdDcfgInst single_integration_config[26] =
 {
+  {0x0010U, 0x0000U}, // operation mode idle; reset
   {0x0009U, 0x0085U}, // set high freq osc to half max frequency?
   {0x000bU, 0x02faU}, // set low freq osc to about 0.75 max
   {0x000fU, 0x0006U}, // use internal oscs. Use GPIO0 for alt clock. Use 1 MHz as low freq and enable it.
@@ -50,14 +51,13 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
-  {ADPD4x_REG_INTEG_OFFSET_A, 0x1U}, // integ offset. Example had 0x0206.
+  {ADPD4x_REG_INTEG_OFFSET_A, 0x1}, // integ offset. Example had 0x0206.
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
   {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
   {0x0024U, 0x0000U}, // gpio 2 and 3 output signal logic 0
   // {0x010eU, 0x2000U}, // adc offset
   {0x0110U, 0x0004U}, // data format: 4 bytes signal data
-  {0x0010U, 0x0000U}, // operation mode idle
   {0,0xFFFFU} // sentinel for end of loop???
 };
 
@@ -114,7 +114,8 @@ void setup () {
 }
 
 void loop () {
-  optimize_int_sequence(true);
+  // optimize_int_sequence(true);
+  poll_int_status();
 
   // uint16_t nAdpdFifoLevelSize;
   // ADI_ADPD_COMM_MODE bus_mode;

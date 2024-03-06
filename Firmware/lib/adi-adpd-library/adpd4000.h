@@ -47,6 +47,6 @@ void read_chip_id_lib();
 void get_com_mode();
 
 void optimize_int_sequence(bool fine);
-
+void poll_int_status();
 // void read_FIFO();
 #endif
