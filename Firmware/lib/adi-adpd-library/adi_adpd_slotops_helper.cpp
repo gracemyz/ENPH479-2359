@@ -271,7 +271,6 @@ uint16_t adi_adpdssm_getFifoLvl(uint16_t *pnValue)
   /* Declare variable to track the status of routine */
   uint16_t nRetCode = ADI_ADPD_SSM_SUCCESS;
   uint16_t nStatData;
-
   if(pnValue == 0U)
   {
     nRetCode = ADI_ADPD_SSM_PARAM_ERROR;
@@ -2212,7 +2211,7 @@ uint16_t adi_adpdssm_loadDcfg(tAdiAdpdDcfgInst *pnCfg, uint8_t nSlot)
 
     while((nRegData != 0xFFFFU) && (nRet == ADI_ADPD_DRV_SUCCESS))
     { 
-      Serial.println(nRegAddr, HEX);
+      // Serial.println(nRegAddr, HEX);
       // blink_bp(1);
       nRet = adi_adpddrv_RegWrite(nRegAddr, nRegData);
       /* debug("Config:, 0x%X ,  0x%X \r\n", nRegAddr, nRegData); */

@@ -45,4 +45,8 @@ void test_spi();
 void read_chip_id();
 void read_chip_id_lib();
 void get_com_mode();
+
+void optimize_int_sequence(bool fine);
+
+// void read_FIFO();
 #endif
