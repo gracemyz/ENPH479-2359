@@ -12,7 +12,7 @@ print("Created file")
 
 photodiode_data = []
 
-samples = 3000
+samples = 10000
 
 
 

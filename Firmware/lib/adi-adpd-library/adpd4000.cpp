@@ -150,7 +150,7 @@ void poll_int_status() {
   uint16_t upper;
   uint16_t lower;
 
-  int array_size = 1000;
+  int array_size = 10000;
 
   unsigned long times[array_size];
   uint16_t upper_vals[array_size];
