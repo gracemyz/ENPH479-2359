@@ -158,7 +158,7 @@
 //     }
 //     else
 //     {
-//         return ADI_HAL_ERROR;
+ //       return ADI_HAL_ERROR;
 //     }
 // }
 

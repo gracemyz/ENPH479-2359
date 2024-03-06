@@ -1,6 +1,5 @@
 
 #include <SPI.h>
-
 #include "adi_adpd_driver.h"
 #include "adi_adpd_reg.h"
 #include "adi_adpd_ssm.h"
@@ -8,7 +7,6 @@
 #include "adpd4000.h"
 #include "Arduino.h"
 #include "stdint.h" 
-
 
 /* ADI */
 #define ADI_OK      0
@@ -23,9 +21,9 @@
 void blink_bp(int num_blinks) {
   for (int i=0; i < num_blinks; i++) {
     delay(BLINK_DUR_ms);
-    digitalWrite(BP_LED_BUILTIN, HIGH);
-    delay(BLINK_DUR_ms);
     digitalWrite(BP_LED_BUILTIN, LOW);
+    delay(BLINK_DUR_ms);
+    digitalWrite(BP_LED_BUILTIN, HIGH);
   }
 }
 
@@ -36,28 +34,28 @@ void blink_bp(int num_blinks) {
  */
 void test_spi() {
 
-  uint16_t nUId = E_ADI_ADPD_SLOTA;
+  uint16_t nUId = E_ADI_ADPD_SLOTB;
   ADI_ADPD_LEDID nLed = E_ADI_ADPD_LED2A;
   uint16_t led_values[2] = {8U, 16U};
   uint16_t ret;
 
-  // read_chip_id_lib();
-  ret = adi_adpdssm_SetLedCurrent(nUId,  nLed, 0);
-  uint16_t *pLedCurrent;
-  adi_adpdssm_GetLedCurrent(nUId, nLed, pLedCurrent);
-  if (*pLedCurrent == 0) {
-    blink_bp(2);
 
-  } else {
-    blink_bp(1);
-  }
+  adi_adpdssm_SetLedCurrent(nUId,  nLed, 32U);
   delay(1000);
 
 
 
 }
 
+// void blink_indicate(int code, int vals, int size) {
+//   for (int i=0; i < size; i++) {
+//     if (code == vals[i]) {
+//       blink_bp(i);
+//       return;
+//     }
 
+//   }
+// }
 
 void read_chip_id() {
 
