@@ -3,8 +3,7 @@ import csv
 
 arduino_port = "COM4" #serial port of Arduino
 baud = 9600 #arduino uno runs at 9600 baud
-fileName="test3000dark2.csv" #name of the CSV file generated
-
+fileName="finger two leds.csv" #name of the CSV file generated
 
 ser = serial.Serial(arduino_port, baud)
 print("Connected to Arduino port:" + arduino_port)
@@ -13,8 +12,7 @@ print("Created file")
 
 photodiode_data = []
 
-samples = 3000
-
+samples = 500
 
 
 
