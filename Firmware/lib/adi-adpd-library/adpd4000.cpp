@@ -150,7 +150,7 @@ void poll_int_status() {
   uint16_t upper;
   uint16_t lower;
 
-  int array_size = 1000;
+  int array_size = 500;
 
   unsigned long times[array_size];
   uint16_t upper_vals[array_size];
@@ -165,7 +165,7 @@ void poll_int_status() {
     if (int_status == 32769) { // last bit is 1, ie time slot A updated
       // adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
       adi_adpddrv_RegRead(0x0030, &upper_vals[i]);
-      // adi_adpddrv_RegRead(0x0031, &lower_vals[i]);
+      adi_adpddrv_RegRead(0x0031, &lower_vals[i]);
       // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
 
       times[i] = micros();
@@ -181,9 +181,9 @@ void poll_int_status() {
       for (int j = 0; j < array_size; j++) {
         Serial.print(times[j]);
         Serial.print(",");
-        Serial.println(upper_vals[j]);
-        // Serial.print(",");
-        // Serial.println(lower_vals[j]);
+        Serial.print(upper_vals[j]);
+        Serial.print(",");
+        Serial.println(lower_vals[j]);
       }
       i = 0; // Reset index
     }
