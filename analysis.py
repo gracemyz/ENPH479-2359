@@ -20,22 +20,28 @@ def get_data_from_csv(path, timecol, datacol):
 def plot_fft(data, T):
 
     ys = np.fft.fft(data)
-    freqs = np.fft.fftfreq(len(data), d=T)
+    N = len(data)
+    freqs = np.fft.fftfreq(N, d=T)
 
 
-    plt.plot(freqs, np.abs(ys))
-    plt.xlabel("freq")
-    plt.ylabel('fft')
-    plt.xlim([0,10])
-    # plt.ylim([0,1000])
+    freqs_positive = freqs[1:N//2]
+    ys_positive = 2.0/N * np.abs(ys[1:N//2])
+    
+    plt.plot(freqs_positive, ys_positive)
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(title)
     plt.show()
-
-PATH = 'data/James data.csv'
+    
+title = "twoleds_off_darkness"
+PATH = 'data/' + title + '.csv'
 # PATH = 'data/1led_finger_blackout.csv'
-timecol = 1
-datacol = 3
-# period = 0.01988
-period = 0.03125/1000
+timecol = 0
+datacol = 1
+period = 0.01988
+# period = 0.03125/1000
 time, data = get_data_from_csv(PATH, timecol, datacol)
 # data = np.sin(2 * np.pi * 5 * np.linspace(0, 1, 1000)) 
 plot_fft(data, period)
