@@ -1,9 +1,11 @@
 import serial
 import csv
+import os
 
 arduino_port = "COM3" #serial port of Arduino
 baud = 9600 #arduino uno runs at 9600 baud
-fileName="finger two leds.csv" #name of the CSV file generated
+title="evalboard_led_off_bc.csv" #name of the CSV file generated
+fileName = os.path.join('data', title)
 
 ser = serial.Serial(arduino_port, baud)
 print("Connected to Arduino port:" + arduino_port)

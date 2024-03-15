@@ -151,6 +151,10 @@ void setup () {
 
 void loop () {
   // optimize_int_sequence(true);
+  // adi_adpdssm_SetLedCurrent(0, E_ADI_ADPD_LED1A, 0x0);
+
+  // adi_adpdssm_SetLedCurrent(0, E_ADI_ADPD_LED2A, 0x0);
+  Serial.println("polling");
   poll_int_status();
 
   // uint16_t nAdpdFifoLevelSize;

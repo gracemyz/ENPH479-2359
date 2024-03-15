@@ -57,6 +57,9 @@ void test_spi() {
 
 }
 
+void get_update_rate() {
+  return;
+}
 
 
 void read_chip_id() {
@@ -166,9 +169,11 @@ void poll_int_status() {
       // adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
       adi_adpddrv_RegRead(0x0030, &upper_vals[i]);
       adi_adpddrv_RegRead(0x0031, &lower_vals[i]);
+      
       // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
 
       times[i] = micros();
+      Serial.print(times[i]/1000.0);
 
       i++;
 
@@ -179,7 +184,7 @@ void poll_int_status() {
       // Print or do something with the filled arrays
       Serial.println("starting");
       for (int j = 0; j < array_size; j++) {
-        Serial.print(times[j]);
+        Serial.print(times[j]/1000000.0);
         Serial.print(",");
         Serial.print(upper_vals[j]);
         Serial.print(",");

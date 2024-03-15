@@ -1,7 +1,9 @@
 import csv
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 
+title = "evalboard_led_off_bc"
 
 
 def get_data_from_csv(path, timecol, datacol):
@@ -32,10 +34,10 @@ def plot_fft(data, T):
     plt.ylabel('Amplitude')
     plt.title(title)
     plt.grid(True)
-    plt.savefig(title)
+    filepath = os.path.join('plots', title)
+    plt.savefig(filepath)
     plt.show()
     
-title = "twoleds_off_darkness"
 PATH = 'data/' + title + '.csv'
 # PATH = 'data/1led_finger_blackout.csv'
 timecol = 0

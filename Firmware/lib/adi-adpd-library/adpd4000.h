@@ -27,7 +27,7 @@
 
 /* ADPD4000 SPI settings */
 // #define maxspeed 24000000 // ADPD4000 sclk frequency
-#define maxspeed 200000
+#define maxspeed 500000
 #define dataorder MSBFIRST
 #define datamode SPI_MODE0 
 
@@ -48,5 +48,6 @@ void get_com_mode();
 
 void optimize_int_sequence(bool fine);
 void poll_int_status();
+void get_update_rate();
 // void read_FIFO();
 #endif
