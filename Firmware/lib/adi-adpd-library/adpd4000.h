@@ -27,7 +27,7 @@
 
 /* ADPD4000 SPI settings */
 // #define maxspeed 24000000 // ADPD4000 sclk frequency
-#define maxspeed 500000
+#define maxspeed 200000
 #define dataorder MSBFIRST
 #define datamode SPI_MODE0 
 
