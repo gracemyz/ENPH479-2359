@@ -164,7 +164,7 @@ uint16_t adi_adpdssm_setOperationMode(uint8_t nOpMode) {
     goAdiAdpdSSmInst->oAdpdSlotInst.nWriteSequence = 1U;
     nRetCode = _adi_adpdssm_getFifoLevel(&nSampleSize);
     
-    Serial.println("got fifo level");
+    // Serial.println("got fifo level");
 
     nDevID = goAdiAdpdSSmInst->oAdpdSlotInst.nDevID;
     if(nDevID == ADPD400x_ID)
@@ -2113,6 +2113,7 @@ uint16_t adi_adpdssm_getSlotInfo(void)
     adi_adpdssm_getDataOutputRate(nIndex);
     }
   }
+  Serial.println("reached slot info");
 
   return nRetVal;
 }
@@ -2144,10 +2145,11 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
   else
   {
     nRetCode = adi_adpddrv_RegRead(ADPD4x_REG_SYS_CTL, &nRegValue);
-    Serial.print("reg read ret code ");
-    Serial.println(nRetCode);
+    
     nRegValue &= BITM_SYS_CTL_LFOSC_SEL;
     nRegValue >>= BITP_SYS_CTL_LFOSC_SEL;
+    Serial.print("nRegvalue is ");
+    Serial.println(nRegValue);
     if (nRegValue == 1U) {
       lfOSC = 1000000U;  /* 1M clock */
     }
@@ -2183,9 +2185,9 @@ uint16_t adi_adpdssm_getDataOutputRate(uint16_t nSlotNum)
     }
   }
   /* Return routine status to caller function */
-  // Serial.print(" data rate is ");
-  // Serial.println(goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlot].nOutputDataRate);
-  // Serial.println(nRetCode);
+  Serial.print(" data rate is ");
+  Serial.println(goAdiAdpdSSmInst->oAdpdSlotInst.aSlotInfo[nSlot].nOutputDataRate);
+  Serial.println(nRetCode);
   return nRetCode;
 }
 
@@ -2482,6 +2484,7 @@ static uint16_t _adi_adpdssm_slotApplySkipSetting(uint8_t nSlotNum)
 ******************************************************************************/
 static uint16_t _adi_adpdssm_getFifoLevel(uint16_t *pFifoSz)
 {
+  Serial.println("getting fifo?");
   uint16_t nRet = ADI_ADPD_SSM_SUCCESS;
   /* Calculating LCM for the decimations of all 12 slots */
   goAdiAdpdSSmInst->oAdpdSlotInst.nLcmValue = adi_adpdssm_calculate_lcm();
@@ -2489,8 +2492,10 @@ static uint16_t _adi_adpdssm_getFifoLevel(uint16_t *pFifoSz)
   goAdiAdpdSSmInst->oAdpdSlotInst.nInterruptSequence = 1U;
   goAdiAdpdSSmInst->oAdpdSlotInst.nWriteSequence = 1U;
   nRet = adi_adpdssm_getMaxSamplSz();
+  Serial.println("here");
   nRet = adi_adpdssm_getSamplSz(goAdiAdpdSSmInst->oAdpdSlotInst.nAdpdFifoWaterMark,
                &goAdiAdpdSSmInst->oAdpdSlotInst.nInterruptSequence, pFifoSz);
+  Serial.println("here 1");
   return nRet;
 }
 
