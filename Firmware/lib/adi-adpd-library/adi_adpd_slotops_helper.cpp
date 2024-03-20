@@ -164,7 +164,7 @@ uint16_t adi_adpdssm_setOperationMode(uint8_t nOpMode) {
     goAdiAdpdSSmInst->oAdpdSlotInst.nWriteSequence = 1U;
     nRetCode = _adi_adpdssm_getFifoLevel(&nSampleSize);
     
-    Serial.println("got fifo level");
+    // Serial.println("got fifo level");
 
     nDevID = goAdiAdpdSSmInst->oAdpdSlotInst.nDevID;
     if(nDevID == ADPD400x_ID)

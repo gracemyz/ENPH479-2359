@@ -42,7 +42,7 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {ADPD4x_REG_TS_PATH_A, 0x1DAU}, // signal path selection: TIA, BPF, integrator, and ADC.
   // {ADPD4x_REG_TS_PATH_A, 0x0E6}, // TIA ADC mode
   {ADPD4x_REG_INPUTS_A, 0x0005U}, // 101: IN1 connected to channel 1; IN2 connected to channel 2; all else disconnected
-  {ADPD4x_REG_CATHODE_A, 0x5002U}, // precon anode to TIA_VREF, set 250 mV reverse bias across photodiode
+  {ADPD4x_REG_CATHODE_A, 0x5001U}, // 5001 = zero bias, 5002 = precon anode to TIA_VREF, set 250 mV reverse bias across photodiode
   // set TIA_VREF to 1.265 V;
   // set TIA_VREF pulse alternate value also to 1.265 V (no pulses?), 
   // set TIA channel 2 gain to 100 kOhm and TIA channel 1 gain also to 100 kOhm
@@ -51,7 +51,7 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
-  {ADPD4x_REG_INTEG_OFFSET_A, 0x1}, // integ offset. Example had 0x0206.
+  {ADPD4x_REG_INTEG_OFFSET_A, 0xA19}, // integ offset. Example had 0x0206. Old eval: 1. New eval: A19
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
   {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
@@ -190,10 +190,12 @@ void loop () {
   // optimize_int_sequence(true);
   // adi_adpdssm_SetLedCurrent(0, E_ADI_ADPD_LED1A, 0x0);
 
-  // adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED1B, 0xA);
-  // adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED2B, 0xA);
+  uint16_t curr = 0x3F;
+  adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED1A, curr);
+  // adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED2B, curr);
 
   Serial.println("polling");
+  // optimize_int_sequence(true);
   poll_int_status();
 
   // uint16_t nAdpdFifoLevelSize;

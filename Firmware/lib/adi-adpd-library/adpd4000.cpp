@@ -147,13 +147,12 @@ void get_com_mode() {
 }
 
 void poll_int_status() {
-  Serial.println("polling");
   adi_adpddrv_RegWrite(0x0007, 1U);
   uint16_t int_status;
   uint16_t upper;
   uint16_t lower;
 
-  int array_size = 500;
+  int array_size = 1300;
 
   unsigned long times[array_size];
   uint16_t upper_vals[array_size];
@@ -173,7 +172,6 @@ void poll_int_status() {
       // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
 
       times[i] = micros();
-      Serial.print(times[i]/1000.0);
 
       i++;
 
@@ -200,23 +198,23 @@ void optimize_int_sequence(bool fine) {
   
   // coarse
   if (fine == false) {
-    for (uint16_t offset = 0; offset < 100; offset++) {
-    uint16_t upper = 0U;
-    uint16_t lower = 0U;
+    for (uint16_t offset = 0; offset < 255; offset++) {
+      uint16_t upper = 0U;
+      uint16_t lower = 0U;
 
-    for (int i = 0; i < 5; i++) { // take a few measurements
-      delay(50);
-      adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
-      adi_adpddrv_RegWrite(0x010B, offset);
-      adi_adpddrv_RegRead(0x0030, &upper);
-      adi_adpddrv_RegRead(0x0031, &lower);
-      Serial.print(offset);
-      Serial.print(",");
-      Serial.print(upper);
-      Serial.print(",");
-      Serial.println(lower);
-      adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
-    }
+      for (int i = 0; i < 3; i++) { // take a few measurements
+        delay(50);
+        adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
+        adi_adpddrv_RegWrite(0x010B, offset);
+        adi_adpddrv_RegRead(0x0030, &upper);
+        adi_adpddrv_RegRead(0x0031, &lower);
+        Serial.print(offset);
+        Serial.print(",");
+        Serial.print(upper);
+        Serial.print(",");
+        Serial.println(lower);
+        adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
+      }
     } 
 
   }
@@ -224,15 +222,17 @@ void optimize_int_sequence(bool fine) {
     for (uint16_t offset = 0; offset < 32; offset++) {
       uint16_t upper = 0U;
       uint16_t lower = 0U;
-      uint16_t reg =  (offset << 8);
+      uint16_t reg =  (offset << 8) | 0x19;
       float val = 0.03125*offset;
-      for (int i = 0; i < 5; i++) { // take a few measurements
+      for (int i = 0; i < 3; i++) { // take a few measurements
         delay(50);
         adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
         adi_adpddrv_RegWrite(0x010B, reg);
         adi_adpddrv_RegRead(0x0030, &upper);
         adi_adpddrv_RegRead(0x0031, &lower);
         Serial.print(offset);
+        Serial.print(",");
+        Serial.print(reg);
         Serial.print(",");
         Serial.print(val);
         Serial.print(",");

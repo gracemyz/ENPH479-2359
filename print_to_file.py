@@ -58,7 +58,8 @@ def main():
 
     title = sys.argv[1]
     samples = sys.argv[2]
-    fileName = os.path.join('data', title)
+    print("saving to " + title + ".csv")
+    fileName = os.path.join('data', title+'.csv')
 
     ser = serial.Serial(arduino_port, baud)
     print("Connected to Arduino port:" + arduino_port)
@@ -69,7 +70,9 @@ def main():
     
     with open(fileName, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
-        for i in range(samples):
+
+        for i in range(int(samples)):
+            print(i)
             getData=ser.readline()
             readings = getData.decode('utf-8').strip().split(",")
 
@@ -83,9 +86,10 @@ def main():
     period = 0.01988
     PATH = 'data/' + title + '.csv'
     time, data = get_data_from_csv(PATH, timecol, datacol)
-    freq, y = plot_fft(data, period)
+    freq, y = plot_fft(data, period, title)
     # Can save to file if we want
-    # write_fft_to_file(freqs, y, fftfile)
+    fftfile = "fft" + title + ".csv"
+    # write_fft_to_file(freq, y, fftfile)
 
 
 if __name__ == "__main__":
