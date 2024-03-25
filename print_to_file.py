@@ -82,12 +82,13 @@ def write_fft_to_file(freqs, ys, fileName):
 
 
 def main():
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 2:
         print("Usage: python print_to_file.py <output_file> <file length> <5 sec cutoff 'T' or 'F'>")
         return
 
     title = sys.argv[1]
-    seconds = sys.argv[2] 
+    seconds = sys.argv[2]
+    # five_sec_cutoff = sys.argv[3] #if 'T', the csv will print without the first 5 seconds and the fft therefore be on data with the first 5 seconds removed
     print("saving to " + title + ".csv")
     fileName = os.path.join('data', title+'.csv')
     period = 0.01988
@@ -104,9 +105,9 @@ def main():
 
         for i in range(int(seconds) * 50):
             print(i)
-            samples_to_skip = 5 // period  # Integer division, Define the number of samples to be taken in the first 5 seconds
-            if i < samples_to_skip and five_sec_cutoff == 'T':
-                 continue  # Skip the first few samples if we are cutting out the first 5second 
+            # samples_to_skip = 5 // period  # Integer division, Define the number of samples to be taken in the first 5 seconds
+            # if i < samples_to_skip and five_sec_cutoff == 'T':
+                #  continue  # Skip the first few samples if we are cutting out the first 5second 
             getData=ser.readline()
             readings = getData.decode('utf-8').strip().split(",")
 
