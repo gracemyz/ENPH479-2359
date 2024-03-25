@@ -146,7 +146,7 @@ void get_com_mode() {
   delay(1000);  
 }
 
-void poll_int_status() {
+void poll_int_status_arr() {
   adi_adpddrv_RegWrite(0x0007, 1U);
   uint16_t int_status;
   uint16_t upper;
@@ -171,7 +171,7 @@ void poll_int_status() {
       
       // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
 
-      times[i] = micros();
+      times[i] = micros() / 1000000.0;
 
       i++;
 
@@ -189,6 +189,40 @@ void poll_int_status() {
         Serial.println(lower_vals[j]);
       }
       i = 0; // Reset index
+    }
+    
+  }
+}
+
+void poll_int_status() {
+  adi_adpddrv_RegWrite(0x0007, 1U);
+  uint16_t int_status;
+  uint16_t upper;
+  uint16_t lower;
+  float time;
+
+  int i = 0;
+
+
+  while(1) {
+    
+    adi_adpddrv_RegRead(0x0001, &int_status);
+    if (int_status == 32769) { // last bit is 1, ie time slot A updated
+      // adi_adpddrv_RegWrite(0x002E, 1U); // Disallow data register update
+      time = micros() / 1000000.0;
+      adi_adpddrv_RegRead(0x0030, &upper);
+      adi_adpddrv_RegRead(0x0031, &lower);
+      
+      // adi_adpddrv_RegWrite(0x002E, 0U);  // Reallow data register update
+        
+        Serial.print(time);
+        Serial.print(",");
+        Serial.print(upper);
+        Serial.print(",");
+        Serial.println(lower);
+
+      i++;
+
     }
     
   }

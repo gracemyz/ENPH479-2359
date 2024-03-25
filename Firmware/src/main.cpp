@@ -45,12 +45,12 @@ tAdiAdpdDcfgInst single_integration_config[26] =
   {ADPD4x_REG_CATHODE_A, 0x5001U}, // 5001 = zero bias, 5002 = precon anode to TIA_VREF, set 250 mV reverse bias across photodiode
   // set TIA_VREF to 1.265 V;
   // set TIA_VREF pulse alternate value also to 1.265 V (no pulses?), 
-  // set TIA channel 2 gain to 100 kOhm and TIA channel 1 gain also to 100 kOhm
-  {ADPD4x_REG_AFE_TRIM_A, 0x03C9U}, 
+  // set TIA channel 2 gain to 200 kOhm and TIA channel 1 gain also to 200 kOhm
+  {ADPD4x_REG_AFE_TRIM_A, 0xE3C1U}, // E3C0 = 200k), E3C1 = 100k 
   {ADPD4x_REG_LED_POW12_A, 0xAU}, // led settings: led1A to 16 mA
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
-  {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
-  {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
+  {ADPD4x_REG_LED_PULSE_A, 0x219U}, // 219: led pulse width 2us, first pulse offset 25 us. 319 = 3us
+  {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3= 3 us integration width, 1 ADC conversion per pulse 
   {ADPD4x_REG_INTEG_OFFSET_A, 0xA19}, // integ offset. Example had 0x0206. Old eval: 1. New eval: A19
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
@@ -118,12 +118,12 @@ tAdiAdpdDcfgInst led_pd_in3_config[26] =
   // set TIA_VREF to 1.265 V;
   // set TIA_VREF pulse alternate value also to 1.265 V (no pulses?), 
   // set TIA channel 2 gain to 100 kOhm and TIA channel 1 gain also to 100 kOhm
-  {ADPD4x_REG_AFE_TRIM_A, 0x03C9U}, 
+  {ADPD4x_REG_AFE_TRIM_A, 0xE3C1U}, 
   {ADPD4x_REG_LED_POW12_A, 0x8A8AU}, // led settings: 1B and 2B to 16 mA
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
-  {ADPD4x_REG_INTEG_OFFSET_A, 0x1}, // integ offset. Example had 0x0206.
+  {ADPD4x_REG_INTEG_OFFSET_A, 0x319}, // integ offset.25 us + 3 fine.
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
   {0x0023U, 0x0002U}, // gpio1 output signal select output logic 0. gpio1 interrupt X.
@@ -163,7 +163,7 @@ void setup () {
 
   adi_adpddrv_OpenDriver();
 
-  uint16_t ret = adi_adpdssm_loadDcfg(single_integration_config, 0xFFU);
+  uint16_t ret = adi_adpdssm_loadDcfg(led_pd_in3_config, 0xFFU);
   if (ret == ADI_ADPD_SSM_SUCCESS) {
     Serial.println("register config successful");
   } else {
@@ -190,11 +190,11 @@ void loop () {
   // optimize_int_sequence(true);
   // adi_adpdssm_SetLedCurrent(0, E_ADI_ADPD_LED1A, 0x0);
 
-  uint16_t curr = 0x3F;
-  adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED1A, curr);
+  uint16_t curr = 0x5F; // C = 20 mA
+  // adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED1B, curr);
   // adi_adpdssm_SetLedCurrent(E_ADI_ADPD_SLOTA, E_ADI_ADPD_LED2B, curr);
 
-  Serial.println("polling");
+  // Serial.println("polling");
   // optimize_int_sequence(true);
   poll_int_status();
 

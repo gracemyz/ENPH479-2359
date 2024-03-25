@@ -39,6 +39,7 @@ def plot_fft(data, T, title):
     plt.ylabel('Amplitude')
     plt.title(title)
     plt.grid(True)
+    # plt.ylim([0, 500])
     filepath = os.path.join('plots', title)
     plt.savefig(filepath)
     return freqs_positive, ys_positive
@@ -57,7 +58,7 @@ def main():
         return
 
     title = sys.argv[1]
-    samples = sys.argv[2]
+    seconds = sys.argv[2] 
     print("saving to " + title + ".csv")
     fileName = os.path.join('data', title+'.csv')
 
@@ -71,7 +72,7 @@ def main():
     with open(fileName, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
 
-        for i in range(int(samples)):
+        for i in range(int(seconds) * 50):
             print(i)
             getData=ser.readline()
             readings = getData.decode('utf-8').strip().split(",")

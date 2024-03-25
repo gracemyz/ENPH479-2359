@@ -3,7 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-title = "evalboard_led_off_bc"
+title = "20240324_ambient_neweval"
 
 
 def get_data_from_csv(path, timecol, datacol):
