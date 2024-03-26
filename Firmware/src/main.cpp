@@ -83,7 +83,7 @@ tAdiAdpdDcfgInst led_pd_config[26] =
   // set TIA_VREF pulse alternate value also to 1.265 V (no pulses?), 
   // set TIA channel 2 gain to 100 kOhm and TIA channel 1 gain also to 100 kOhm
   {ADPD4x_REG_AFE_TRIM_A, 0x03C9U}, 
-  {ADPD4x_REG_LED_POW12_A, 0x8A8AU}, // led settings: 1B and 2B to 16 mA
+  {ADPD4x_REG_LED_POW12_A, 0x8A8AU}, // led settings: 1B and 2B to 10 mA
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
   {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
   {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
@@ -118,11 +118,11 @@ tAdiAdpdDcfgInst led_pd_in3_config[26] =
   // set TIA_VREF to 1.265 V;
   // set TIA_VREF pulse alternate value also to 1.265 V (no pulses?), 
   // set TIA channel 2 gain to 100 kOhm and TIA channel 1 gain also to 100 kOhm
-  {ADPD4x_REG_AFE_TRIM_A, 0xE3C1U}, 
-  {ADPD4x_REG_LED_POW12_A, 0x8A8AU}, // led settings: 1B and 2B to 16 mA
+  {ADPD4x_REG_AFE_TRIM_A, 0xE3C0U}, 
+  {ADPD4x_REG_LED_POW12_A, 0xE4E4U}, // led settings: 1B and 2B to 100 mA 8A8A=10mA E4E4=100mA 8282=2mA
   {ADPD4x_REG_PERIOD_A, 0U}, // TIA is continuously connected to input after precondition. No connection modulation.
-  {ADPD4x_REG_LED_PULSE_A, 0x219U}, // led pulse width 2us, first pulse offset 25 us
-  {ADPD4x_REG_INTEG_WIDTH_A, 0x3U}, // 3 us integration width, 1 ADC conversion per pulse 
+  {ADPD4x_REG_LED_PULSE_A, 0x319U}, // led pulse width 2us, first pulse offset 25 us
+  {ADPD4x_REG_INTEG_WIDTH_A, 0x4U}, // 3 us integration width, 1 ADC conversion per pulse 
   {ADPD4x_REG_INTEG_OFFSET_A, 0x319}, // integ offset.25 us + 3 fine.
   {ADPD4x_REG_COUNTS_A, 0x0101U}, // 105 = 5 pulses, 155=27 pulses?. 1 integration per ADC conversion.
   {0x0022U, 0x0403U}, // slow slew control, med drive control,  gpio3 normal output, gpio2 disabled, gpio1 disabled, gpio0 output inverted,  
