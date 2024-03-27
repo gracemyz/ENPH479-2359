@@ -99,10 +99,12 @@ class UserOptions(QWidget):
     
     def on_reset_click(self):
         self.plotPB.setEnabled(True)
+        self.resetPB.setEnabled(False)
         self.reset_plots.emit()
 
     def on_plot_click(self):
         self.plotPB.setEnabled(False)
+        self.resetPB.setEnabled(True)
         self.start_plots.emit(int(self.length_line_edit.text()))
 
     def on_pause_state_changed(self, state):

@@ -40,7 +40,11 @@ class TimeView(QWidget):
         left_widget.setLayout(left_layout)
         left_widget.setFixedSize(400, 100)
         self.moving_plot_button = QPushButton("Moving plot")
+        window_label = QLabel("Specify window length (s)")
+        self.window_line_edit = QLineEdit("10")
         left_layout.addWidget(self.moving_plot_button)
+        left_layout.addWidget(window_label)
+        left_layout.addWidget(self.window_line_edit)
         left_layout.addStretch(1) 
 
         # Create the right layout for "Full plot" radio button and QLineEdits
@@ -82,6 +86,7 @@ class TimeView(QWidget):
         self.moving_plot_button.toggled.connect(self.on_pb_toggled)
         self.specify_range_button.toggled.connect(self.on_pb_toggled)
 
+
     def replace_graph(self):
 
         new_widget = TimeGraph(parent=self)
@@ -104,15 +109,15 @@ class TimeView(QWidget):
 
         
 
-    def start_plots(self, total_s=60, window_s=15, sample_rate=50, plot_update_rate=100):
+    def start_plots(self, total_s=60, sample_rate=50, plot_update_rate=100):
         logging.warning("Init time plot")
 
         # self.timegraph = TimeGraph(parent=self)
         self.total_s = total_s
-        window_len = window_s * sample_rate
+        window_len = int(self.window_line_edit.text()) * sample_rate
         self.num_samples = total_s * sample_rate
         self.x_queue, self.y_queue = deque(maxlen=window_len), deque(maxlen=window_len)  # Buffer for incoming data
-        self.xs, self.ys = [], []
+        self.xs, self.ys = [0.0], [0.0]
         self.stop_event = threading.Event()
         self.serial_reader = SerialDataReader(PORT, self.x_queue, self.y_queue, self.xs, self.ys, self.stop_event, self.num_samples)
         self.serial_reader.start()
@@ -125,9 +130,13 @@ class TimeGraph(pg.GraphicsLayoutWidget):
         super().__init__(parent=parent)
 
         self.plotItem = self.addPlot(title="ADC output vs time")
+        pen = pg.mkPen(color=(255, 0, 0), width=1)  # Blue pen with width 2
 
-        self.plotDataItem = self.plotItem.plot([], pen=None, 
-            symbolBrush=(255,0,0), symbolSize=5, symbolPen=None)
+        # Create the plotDataItem with the specified pen
+        self.plotDataItem = self.plotItem.plot([], pen=pen, 
+                                            symbolBrush=(255, 0, 0), 
+                                            symbolSize=2, 
+                                            symbolPen=None)
     
     def start(self, plot_update_rate):
         self.timer_id = self.startTimer(plot_update_rate) # number of seconds

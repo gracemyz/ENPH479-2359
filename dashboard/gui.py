@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
         layout = QVBoxLayout(main_widget)
         layout.addWidget(self.mdi_area)
+        self.is_plotting = False
 
     
     def init_ui(self):
@@ -41,6 +42,9 @@ class MainWindow(QMainWindow):
 
         self.options_view.start_plots.connect(self.time_view.start_plots)
         self.options_view.reset_plots.connect(self.time_view.reset_plots)
+
+        self.options_view.start_plots.connect(self.fft_view.start_plots)
+        self.options_view.reset_plots.connect(self.fft_view.reset_plots)
 
         options_window = QMdiSubWindow()
         options_window.setWidget(self.options_view)
@@ -68,6 +72,10 @@ class MainWindow(QMainWindow):
         self.mdi_area.subWindowList()[2].setGeometry(optionswidth+timewidth, 0, freqwidth, height)
         
         self.showMaximized()
+
+    def is_plotting(self, val):
+        self.is_plotting = val
+
 
 
 
