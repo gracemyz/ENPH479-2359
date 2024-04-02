@@ -39,8 +39,8 @@ class FFTView(QWidget):
         right_layout.addWidget(self.specify_range_button)
         self.x_min_edit = QLineEdit("0")
         self.x_max_edit = QLineEdit("5")
-        self.y_max_edit = QLineEdit()
-        self.y_min_edit = QLineEdit()
+        self.y_max_edit = QLineEdit("100")
+        self.y_min_edit = QLineEdit("0")
 
         xlayout = QHBoxLayout()
         ylayout = QHBoxLayout()
@@ -117,7 +117,7 @@ class FreqGraph(pg.GraphicsLayoutWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-
+        self.parent=parent
         self.plotItem = self.addPlot(title="FFT")
 
         pen = pg.mkPen(color=(0, 255, 255), width=1)  # Blue pen with width 2
@@ -143,17 +143,22 @@ class FreqGraph(pg.GraphicsLayoutWidget):
 
     def plot_fft(self, xs, ys):
 
-        ys = np.fft.fft(ys)
-        num_samples = len(ys)
-        sample_spacing = (xs[num_samples-1] - xs[num_samples-2])
-        if num_samples < 2 or sample_spacing == 0:
+        if len(ys) < 2:
+            logging.warning("too few to plot")
             pass
         else:
-            
-            freqs = np.fft.fftfreq(num_samples, sample_spacing)
+            ys = np.fft.fft(ys)
+            num_samples = len(ys)
+            sample_spacing = (xs[num_samples-1] - xs[num_samples-2])
+            if num_samples < 2 or sample_spacing == 0:
+                pass
+            else:
+                
+                freqs = np.fft.fftfreq(num_samples, sample_spacing)
 
-            freqs_positive = freqs[1:num_samples//2]
-            ys_positive = 2.0/num_samples * np.abs(ys[1:num_samples//2])
+                freqs_positive = freqs[1:num_samples//2]
+                ys_positive = 2.0/num_samples * np.abs(ys[1:num_samples//2])
+                self.plotDataItem.setData(freqs_positive, ys_positive)
 
         # # Create a low-pass filter
         # cutoff_freq = 5  # Cutoff frequency in Hz
@@ -167,11 +172,11 @@ class FreqGraph(pg.GraphicsLayoutWidget):
 
 
 
-            self.plotDataItem.setData(freqs_positive, ys_positive)
+            
 
 
     def timerEvent(self, event):
-        xs = self.parent().xs
-        ys = self.parent().ys
+        xs = self.parent.xs
+        ys = self.parent.ys
         self.plot_fft(xs, ys)
         

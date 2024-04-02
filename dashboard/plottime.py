@@ -19,6 +19,27 @@ from serialreader import SerialDataReader
 
 PORT = 'COM3'
 
+class FullTimeView(QWidget):
+    def __init__(self, xs, ys, parent,**kwargs):
+        super().__init__(**kwargs)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.xs = xs
+        self.ys = ys
+        self.lims = [parent.x_min_edit.text(),
+                     parent.x_max_edit.text(),
+                     parent.y_min_edit.text(),
+                     parent.y_max_edit.text()]
+        for i in range(4):
+            if len(self.lims[i]) == 0:
+                self.lims[i] = None
+            else:
+                self.lims[i] = int(self.lims[i])
+        logging.warning(self.lims)
+        self.timegraph = FullTimeGraph(parent=self)
+        # self.timegraph = TimeGraph(parent=self)
+        self.layout.addWidget(self.timegraph)
+
 
 class TimeView(QWidget):
     def __init__(self, **kwargs):
@@ -52,7 +73,7 @@ class TimeView(QWidget):
         right_layout = QVBoxLayout()
         right_widget.setLayout(right_layout)
         right_widget.setFixedSize(400, 100)
-        self.specify_range_button = QPushButton("Specify range")
+        self.specify_range_button = QPushButton("Show full plot")
         right_layout.addWidget(self.specify_range_button)
         right_layout.addStretch(1)
 
@@ -84,7 +105,7 @@ class TimeView(QWidget):
 
         # Connect signals to slots
         self.moving_plot_button.toggled.connect(self.on_pb_toggled)
-        self.specify_range_button.toggled.connect(self.on_pb_toggled)
+        self.specify_range_button.clicked.connect(self.on_pb_toggled)
 
 
     def replace_graph(self):
@@ -95,11 +116,14 @@ class TimeView(QWidget):
         to_replace.deleteLater()
         self.timegraph = new_widget
 
+    def pop_up_full(self):
+        self.fulltimeview = FullTimeView(self.xs, self.ys, parent=self)
+        self.fulltimeview.showMaximized()
+
 
     def on_pb_toggled(self):
-        sender = self.sender()
-        if sender.isChecked():
-            print(f"Selected option: {sender.text()}")
+        logging.warning("toggled")
+        self.pop_up_full()
 
     def reset_plots(self):
         self.serial_reader.stop()
@@ -117,9 +141,9 @@ class TimeView(QWidget):
         window_len = int(self.window_line_edit.text()) * sample_rate
         self.num_samples = total_s * sample_rate
         self.x_queue, self.y_queue = deque(maxlen=window_len), deque(maxlen=window_len)  # Buffer for incoming data
-        self.xs, self.ys = [0.0], [0.0]
+        self.xs, self.ys = [], []
         self.stop_event = threading.Event()
-        self.serial_reader = SerialDataReader(PORT, self.x_queue, self.y_queue, self.xs, self.ys, self.stop_event, self.num_samples)
+        self.serial_reader = SerialDataReader(PORT, self.x_queue, self.y_queue, self.xs, self.ys, self.stop_event, self.num_samples, 1)
         self.serial_reader.start()
         self.timegraph.start(plot_update_rate)
 
@@ -144,11 +168,33 @@ class TimeGraph(pg.GraphicsLayoutWidget):
     def clear(self):
         pass
         # self.plotItem.clear()
-
-
-
-
+    
     def timerEvent(self, event):
         xs = list(self.parent().x_queue)
         ys = list(self.parent().y_queue)
         self.plotDataItem.setData(xs, ys)
+        
+
+
+class FullTimeGraph(pg.GraphicsLayoutWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent) 
+        lims = parent.lims
+
+        self.plotItem = self.addPlot(title="ADC output vs time")
+        self.set_limits(lims)
+        pen = pg.mkPen(color=(255, 0, 0), width=1)  # Blue pen with width 2
+
+        # Create the plotDataItem with the specified pen
+        self.plotDataItem = self.plotItem.plot([], pen=pen, 
+                                            symbolBrush=(255, 0, 0), 
+                                            symbolSize=2, 
+                                            symbolPen=None)
+        xs = list(parent.xs)
+        ys = list(parent.ys)
+        self.plotDataItem.setData(xs, ys)
+        
+        
+
+    def set_limits(self, lims):
+        self.plotItem.setLimits(xMin=lims[0], xMax=lims[1], yMin=lims[2], yMax=lims[3])

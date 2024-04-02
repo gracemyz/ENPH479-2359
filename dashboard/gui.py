@@ -31,7 +31,6 @@ class MainWindow(QMainWindow):
         self.init_ui()
         layout = QVBoxLayout(main_widget)
         layout.addWidget(self.mdi_area)
-        self.is_plotting = False
 
     
     def init_ui(self):
@@ -72,13 +71,6 @@ class MainWindow(QMainWindow):
         self.mdi_area.subWindowList()[2].setGeometry(optionswidth+timewidth, 0, freqwidth, height)
         
         self.showMaximized()
-
-    def is_plotting(self, val):
-        self.is_plotting = val
-
-
-
-
 
 
     
