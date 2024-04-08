@@ -45,6 +45,9 @@ class MainWindow(QMainWindow):
         self.options_view.start_plots.connect(self.fft_view.start_plots)
         self.options_view.reset_plots.connect(self.fft_view.reset_plots)
 
+        self.options_view.start_from_file.connect(self.time_view.start_from_file)
+        self.options_view.start_from_file.connect(self.fft_view.start_from_file)
+
         options_window = QMdiSubWindow()
         options_window.setWidget(self.options_view)
         options_window.setWindowTitle("Details")

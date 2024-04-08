@@ -81,7 +81,7 @@ class SerialDataReader(threading.Thread):
                         self.y_queue.append(new_y)
                         self.ys.append(new_y)
                     except:
-                        logging.warning("skip a line")
+                        # logging.warning("skip a line")
                         pass
                     
                 
@@ -97,10 +97,11 @@ class SerialDataReader(threading.Thread):
         self.stop_event.set()
         self.join()
 
-    def fake_it(self):
+    def fake_it(self, path):
         time = []
         data = []
-        path = "..\\data\\20240324\\20240324_100kO_10mA_noBC_finger_neweval.csv"
+        # path = "20240406_2ledpd_thinbaffle_currentsweep\\20240406_2ledpd_thinbaffle_2mA_100kO_2uspulsewidth.csv"
+        # path = "..\\data\\20240324\\20240324_100kO_10mA_noBC_finger_neweval.csv"
 
         with open(path, 'r') as file:
             csv_reader = csv.reader(file)
@@ -111,6 +112,6 @@ class SerialDataReader(threading.Thread):
                 time.append(row[0])
                 data.append(row[1])
         file.close()
-        return time[500:], data[500:]
+        return time, data
         
     

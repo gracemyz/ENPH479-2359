@@ -1,4 +1,4 @@
-import sys
+import sys, csv
 import random
 import logging
 from PyQt5.QtCore import Qt
@@ -35,7 +35,7 @@ class FullTimeView(QWidget):
                 self.lims[i] = None
             else:
                 self.lims[i] = int(self.lims[i])
-        logging.warning(self.lims)
+        # logging.warning(self.lims)
         self.timegraph = FullTimeGraph(parent=self)
         # self.timegraph = TimeGraph(parent=self)
         self.layout.addWidget(self.timegraph)
@@ -60,10 +60,10 @@ class TimeView(QWidget):
         left_layout = QVBoxLayout()
         left_widget.setLayout(left_layout)
         left_widget.setFixedSize(400, 100)
-        self.moving_plot_button = QPushButton("Moving plot")
+        # self.moving_plot_button = QPushButton("Moving plot")
         window_label = QLabel("Specify window length (s)")
         self.window_line_edit = QLineEdit("10")
-        left_layout.addWidget(self.moving_plot_button)
+        # left_layout.addWidget(self.moving_plot_button)
         left_layout.addWidget(window_label)
         left_layout.addWidget(self.window_line_edit)
         left_layout.addStretch(1) 
@@ -104,7 +104,7 @@ class TimeView(QWidget):
         self.layout.addWidget(bottomwidget)
 
         # Connect signals to slots
-        self.moving_plot_button.toggled.connect(self.on_pb_toggled)
+        # self.moving_plot_button.toggled.connect(self.on_pb_toggled)
         self.specify_range_button.clicked.connect(self.on_pb_toggled)
 
 
@@ -126,12 +126,35 @@ class TimeView(QWidget):
         self.pop_up_full()
 
     def reset_plots(self):
-        self.serial_reader.stop()
+        if hasattr(self, "serial_reader"):
+            self.serial_reader.stop()
         # self.timegraph.killTimer(self.timegraph.timer_id) 
         self.replace_graph()
 
 
+    def start_from_file(self, path):
+        time = []
+        data = []
+        # path = "20240406_2ledpd_thinbaffle_currentsweep\\20240406_2ledpd_thinbaffle_2mA_100kO_2uspulsewidth.csv"
+        # path = "..\\data\\20240324\\20240324_100kO_10mA_noBC_finger_neweval.csv"
+
+        with open(path, 'r') as file:
+            csv_reader = csv.reader(file)
+            
+            next(csv_reader) # skip first row
+            next(csv_reader) # skip first row
+            next(csv_reader) # skip first row
+            for row in csv_reader:
+                # Process each row
+                time.append(float(row[0]))
+                data.append(float(row[1]))
+                # logging.warning(row)
+        file.close()
         
+        self.num_samples = len(time)
+        self.xs = time
+        self.ys = data
+        self.timegraph.plotDataItem.setData(self.xs ,self.ys)
 
     def start_plots(self, total_s=60, sample_rate=50, plot_update_rate=100):
         logging.warning("Init time plot")
@@ -154,13 +177,14 @@ class TimeGraph(pg.GraphicsLayoutWidget):
         super().__init__(parent=parent)
 
         self.plotItem = self.addPlot(title="ADC output vs time")
-        pen = pg.mkPen(color=(255, 0, 0), width=1)  # Blue pen with width 2
+        pen = pg.mkPen(color=(0, 255, 255), width=1)  # Blue pen with width 2
 
         # Create the plotDataItem with the specified pen
         self.plotDataItem = self.plotItem.plot([], pen=pen, 
-                                            symbolBrush=(255, 0, 0), 
+                                            symbolBrush=(0, 255, 255), 
                                             symbolSize=2, 
                                             symbolPen=None)
+        self.plotItem.showGrid(True, True)
     
     def start(self, plot_update_rate):
         self.timer_id = self.startTimer(plot_update_rate) # number of seconds
@@ -183,16 +207,17 @@ class FullTimeGraph(pg.GraphicsLayoutWidget):
 
         self.plotItem = self.addPlot(title="ADC output vs time")
         self.set_limits(lims)
-        pen = pg.mkPen(color=(255, 0, 0), width=1)  # Blue pen with width 2
+        pen = pg.mkPen(color=(0, 255, 255), width=1)  # Blue pen with width 2
 
         # Create the plotDataItem with the specified pen
         self.plotDataItem = self.plotItem.plot([], pen=pen, 
-                                            symbolBrush=(255, 0, 0), 
+                                            symbolBrush=(0, 255, 255), 
                                             symbolSize=2, 
                                             symbolPen=None)
         xs = list(parent.xs)
         ys = list(parent.ys)
         self.plotDataItem.setData(xs, ys)
+        self.plotItem.showGrid(True, True)
         
         
 
