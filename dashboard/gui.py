@@ -2,7 +2,7 @@ import sys
 import random
 import logging
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout,  QLabel, QLineEdit, QRadioButton, QMdiArea, QMdiSubWindow, QPushButton, QCheckBox, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout,  QLabel, QLineEdit, QRadioButton, QMdiArea, QMdiSubWindow, QPushButton, QCheckBox, QSpacerItem, QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -20,8 +20,9 @@ from plottime import TimeGraph, TimeView, PORT
 from plotfreq import FFTView
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
+        self.app = app
         self.setWindowTitle('Heart-rate monitoring')
 
         main_widget = QWidget()
@@ -65,13 +66,22 @@ class MainWindow(QMainWindow):
             self.mdi_area.addSubWindow(w)    
         # self.mdi_area.tileSubWindows()
         
-        height = 950
-        optionswidth = 400
-        timewidth = 1000
-        freqwidth = 500
-        self.mdi_area.subWindowList()[0].setGeometry(0, 0, optionswidth, height)
-        self.mdi_area.subWindowList()[1].setGeometry(optionswidth, 0, timewidth, height)
-        self.mdi_area.subWindowList()[2].setGeometry(optionswidth+timewidth, 0, freqwidth, height)
+        options_fraction = 0.18  # 20% of screen width
+        time_fraction = 0.5     # 50% of screen width
+        freq_fraction = 0.3     # 30% of screen width
+
+        # Calculate widths based on fractions
+        screen_geometry = self.app.desktop().screenGeometry()
+
+        options_width = int(screen_geometry.width() * options_fraction)
+        time_width = int(screen_geometry.width() * time_fraction)
+        freq_width = int(screen_geometry.width() * freq_fraction)
+        height = int(0.8*screen_geometry.height())
+
+        # Set the geometry of subwindows
+        self.mdi_area.subWindowList()[0].setGeometry(0, 0, options_width, height)
+        self.mdi_area.subWindowList()[1].setGeometry(options_width, 0, time_width, height)
+        self.mdi_area.subWindowList()[2].setGeometry(options_width + time_width, 0, freq_width, height)
         
         self.showMaximized()
 
