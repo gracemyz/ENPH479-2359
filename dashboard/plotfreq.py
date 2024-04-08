@@ -101,6 +101,8 @@ class FFTView(QWidget):
         xmin, xmax, ymin, ymax = self.getRange()
  
         self.graph.setRange(xmin, xmax, ymin, ymax)
+        self.xs = []
+        self.ys = []
 
 
     def start_plots(self, total_s=60, sample_rate=50, plot_update_rate=100):

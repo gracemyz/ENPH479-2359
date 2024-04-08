@@ -130,6 +130,8 @@ class TimeView(QWidget):
             self.serial_reader.stop()
         # self.timegraph.killTimer(self.timegraph.timer_id) 
         self.replace_graph()
+        self.xs = []
+        self.ys = []
 
 
     def start_from_file(self, path):
