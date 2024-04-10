@@ -34,7 +34,7 @@ class SerialDataReader(threading.Thread):
             self.fakex, self.fakey = self.fake_it()
         else:
             
-            self.ser = serial.Serial("COM3", 9600)
+            self.ser = serial.Serial("COM4", 9600)
             
 
 

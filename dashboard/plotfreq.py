@@ -143,7 +143,7 @@ class FreqGraph(pg.GraphicsLayoutWidget):
 
         self.peaks = []
         self.text = QGraphicsTextItem(parent=self.plotItem)
-        self.text.setPos(180, 180)  # Adjust position as needed
+        self.text.setPos(130, 90)  # Adjust position as needed
         self.text.setDefaultTextColor(QColor('white'))  # Set text color
         self.text.setFont(QFont('Courier', 10))  # Set font for the text
         self.plotItem.showGrid(True, True)
@@ -169,6 +169,8 @@ class FreqGraph(pg.GraphicsLayoutWidget):
             logging.warning("too few to plot")
             pass
         else:
+            if len(ys) > 500:
+                ys = ys[-500:]
             ys = np.fft.fft(ys)
             num_samples = len(ys)
             sample_spacing = (xs[num_samples-1] - xs[num_samples-2])
