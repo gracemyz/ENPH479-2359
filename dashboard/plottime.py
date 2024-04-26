@@ -122,7 +122,7 @@ class TimeView(QWidget):
 
 
     def on_pb_toggled(self):
-        logging.warning("toggled")
+        # logging.warning("toggled")
         self.pop_up_full()
 
     def reset_plots(self):
@@ -159,7 +159,7 @@ class TimeView(QWidget):
         self.timegraph.plotDataItem.setData(self.xs ,self.ys)
 
     def start_plots(self, total_s=60, sample_rate=50, plot_update_rate=100):
-        logging.warning("Init time plot")
+        # logging.warning("Init time plot")
 
         # self.timegraph = TimeGraph(parent=self)
         self.total_s = total_s
